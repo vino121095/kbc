@@ -43,13 +43,264 @@ import {
   FilterList as FilterListIcon,
 } from '@mui/icons-material';
 import baseurl from '../Baseurl/baseurl';
-import * as XLSX from 'xlsx'; // Import the Excel library
+import * as XLSX from 'xlsx';
 import Person from '@mui/icons-material/Person';
 import QrCode2 from '@mui/icons-material/QrCode2';
 import CalendarMonth from '@mui/icons-material/CalendarMonth';
-import Badge from '@mui/material/Badge';
+import Badge from '@mui/icons-material/Badge';
 import Phone from '@mui/icons-material/Phone';
 import DisplaySettingsIcon from '@mui/icons-material/DisplaySettings';
+
+const ViewModal = ({ open, onClose, member }) => {
+  if (!member) return null;
+
+  const getStatusColor = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'active':
+        return '#4CAF50'; // Green
+      case 'inactive':
+        return '#9E9E9E'; // Grey
+      case 'pending':
+        return '#FF9800'; // Orange
+      case 'rejected':
+      case 'blocked':
+        return '#F44336'; // Red
+      default:
+        return '#2196F3'; // Blue (default)
+    }
+  };
+
+  const getInitials = (firstName, lastName) => {
+    return `${firstName?.[0] || ''}${lastName?.[0] || ''}`.toUpperCase();
+  };
+
+  const getColorFromString = (str) => {
+    const colors = [
+      '#4CAF50', '#2196F3', '#9C27B0',
+      '#FF5722', '#607D8B', '#795548',
+      '#3F51B5', '#009688', '#FF9800'
+    ];
+    const index = str ? str.charCodeAt(0) % colors.length : 0;
+    return colors[index];
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return 'Invalid Date';
+
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+      <DialogTitle
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          bgcolor: '#4CAF50',
+          color: 'white',
+          px: 3,
+          py: 2,
+        }}
+      >
+        <Typography variant="h6" fontWeight={600}>
+          🧾 Referral Details
+        </Typography>
+        <IconButton onClick={onClose} size="small" sx={{ color: 'white' }}>
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+
+      <DialogContent sx={{ p: 3, bgcolor: '#fafafa' }}>
+        <Box>
+          {/* Member Overview */}
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              alignItems: { xs: 'center', sm: 'flex-start' },
+              gap: 3,
+              p: 2,
+              mb: 4,
+              bgcolor: 'white',
+              borderRadius: 2,
+              boxShadow: 1,
+            }}
+          >
+            <Avatar
+              src={member.profile_image ? `${baseurl}/${member.profile_image.replace(/\\/g, '/')}` : undefined}
+              sx={{
+                backgroundColor: getColorFromString(member.first_name),
+                width: 100,
+                height: 100,
+                fontSize: 32,
+                fontWeight: 600,
+              }}
+            >
+              {!member.profile_image && getInitials(member.first_name, member.last_name)}
+            </Avatar>
+
+            <Box textAlign={{ xs: 'center', sm: 'left' }}>
+              <Typography variant="h5" fontWeight={700}>
+                {member.first_name} {member.last_name}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" mt={0.5}>
+                {member.email}
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 1, mt: 1, justifyContent: { xs: 'center', sm: 'flex-start' }, flexWrap: 'wrap' }}>
+                <Chip label={member.status} sx={{ bgcolor: getStatusColor(member.status), color: 'white' }} />
+              </Box>
+            </Box>
+          </Box>
+
+          {/* Referral Info */}
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6}>
+              <Box sx={{ bgcolor: 'white', p: 2, borderRadius: 2, boxShadow: 1 }}>
+                <Typography variant="subtitle1" fontWeight={600} mb={2}>
+                  📢 Referral Info
+                </Typography>
+                <List dense>
+                  <ListItem>
+                    <ListItemIcon><Person color="action" /></ListItemIcon>
+                    <ListItemText primary="Referrer Name" secondary={member.Referral?.referral_name || 'N/A'} />
+                  </ListItem>
+                  <ListItem>
+                    <ListItemIcon><QrCode2 color="action" /></ListItemIcon>
+                    <ListItemText primary="Referral Code" secondary={member.Referral?.referral_code || 'N/A'} />
+                  </ListItem>
+                  <ListItem>
+                    <ListItemIcon><CalendarMonth color="action" /></ListItemIcon>
+                    <ListItemText primary="Join Date" secondary={formatDate(member.join_date)} />
+                  </ListItem>
+                </List>
+              </Box>
+            </Grid>
+
+            <Grid item xs={12} md={6}>
+              <Box sx={{ bgcolor: 'white', p: 2, borderRadius: 2, boxShadow: 1 }}>
+                <Typography variant="subtitle1" fontWeight={600} mb={2}>
+                  📄 Additional Info
+                </Typography>
+                <List dense>
+                  <ListItem>
+                    <ListItemIcon>  <DisplaySettingsIcon color="action" /></ListItemIcon>
+                    <ListItemText primary="Application ID" secondary={member.application_id || 'N/A'} />
+                  </ListItem>
+                  <ListItem>
+                    <ListItemIcon><Phone color="action" /></ListItemIcon>
+                    <ListItemText primary="Contact Number" secondary={member.contact_no || 'N/A'} />
+                  </ListItem>
+                </List>
+              </Box>
+            </Grid>
+          </Grid>
+        </Box>
+      </DialogContent>
+
+      <DialogActions sx={{ px: 3, py: 2, bgcolor: '#f0f0f0' }}>
+        <Button variant="outlined" onClick={onClose} sx={{
+                          bgcolor: '#4CAF50',
+                          minWidth: 120,
+                          '&:hover': { bgcolor: '#45a049' },
+                          color: "#fff",
+                           py: 1.5, px: 4 
+                      }}>Close</Button>
+      </DialogActions>
+    </Dialog>
+  );
+};
+
+const EditModal = ({ open, onClose, member, onSubmit }) => {
+  const [status, setStatus] = useState(member?.status || 'Pending');
+
+  useEffect(() => {
+    if (member) {
+      setStatus(member.status || 'Pending');
+    }
+  }, [member]);
+
+  if (!member) return null;
+
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography variant="h6">Edit Referral</Typography>
+        <IconButton onClick={onClose} size="small">
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
+      <form onSubmit={onSubmit}>
+        <DialogContent>
+          <Box sx={{ mt: 2 }}>
+            <Grid container spacing={3}>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Member Name"
+                  value={`${member.first_name || ''} ${member.last_name || ''}`}
+                  variant="outlined"
+                  disabled
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Email"
+                  value={member.email || ''}
+                  variant="outlined"
+                  disabled
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Referrer Name"
+                  value={member.Referral?.referral_name || ''}
+                  variant="outlined"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  fullWidth
+                  label="Referral Code"
+                  value={member.Referral?.referral_code || ''}
+                  variant="outlined"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <FormControl fullWidth>
+                  <InputLabel>Status</InputLabel>
+                  <Select
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value)}
+                    label="Status"
+                  >
+                    <MenuItem value="Approved">Approved</MenuItem>
+                    <MenuItem value="Pending">Pending</MenuItem>
+                    <MenuItem value="Rejected">Rejected</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose}>Cancel</Button>
+          <Button type="submit" variant="contained" color="primary">
+            Save Changes
+          </Button>
+        </DialogActions>
+      </form>
+    </Dialog>
+  );
+};
 
 const ReferralSystemComponent = () => {
   const [viewModalOpen, setViewModalOpen] = useState(false);
@@ -140,32 +391,32 @@ const ReferralSystemComponent = () => {
     handleEditModalClose();
   };
 
-const handleDelete = async (member) => {
-  if (window.confirm(`Are you sure you want to delete ${member.first_name} ${member.last_name}?`)) {
-    try {
-      const response = await fetch(`${baseurl}/api/member/delete/${member.mid}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json'
+  const handleDelete = async (member) => {
+    if (window.confirm(`Are you sure you want to delete ${member.first_name} ${member.last_name}?`)) {
+      try {
+        const response = await fetch(`${baseurl}/api/member/delete/${member.mid}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+          throw new Error(result.msg || 'Failed to delete member');
         }
-      });
 
-      const result = await response.json();
+        // Remove the deleted member from the state
+        setReferralData(referralData.filter(m => m.mid !== member.mid));
 
-      if (!response.ok) {
-        throw new Error(result.msg || 'Failed to delete member');
+        alert('Member deleted successfully');
+      } catch (err) {
+        alert(err.message);
+        console.error('Error deleting member:', err);
       }
-
-      // Remove the deleted member from the state
-      setReferralData(referralData.filter(m => m.mid !== member.mid));
-
-      alert('Member deleted successfully');
-    } catch (err) {
-      alert(err.message);
-      console.error('Error deleting member:', err);
     }
-  }
-};
+  };
 
   const getStatusChip = (status) => {
     let color, bgColor;
@@ -253,226 +504,6 @@ const handleDelete = async (member) => {
 
   const handlePageChange = (event, value) => {
     setPage(value);
-  };
-
-  const ViewModal = ({ open, onClose, member }) => {
-    if (!member) return null;
-
-    const getStatusColor = (status) => {
-      switch (status?.toLowerCase()) {
-        case 'active':
-          return '#4CAF50'; // Green
-        case 'inactive':
-          return '#9E9E9E'; // Grey
-        case 'pending':
-          return '#FF9800'; // Orange
-        case 'rejected':
-        case 'blocked':
-          return '#F44336'; // Red
-        default:
-          return '#2196F3'; // Blue (default)
-      }
-    };
-
-
-    return (
-      <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
-        <DialogTitle
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            bgcolor: '#4CAF50',
-            color: 'white',
-            px: 3,
-            py: 2,
-          }}
-        >
-          <Typography variant="h6" fontWeight={600}>
-            🧾 Referral Details
-          </Typography>
-          <IconButton onClick={onClose} size="small" sx={{ color: 'white' }}>
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-
-        <DialogContent sx={{ p: 3, bgcolor: '#fafafa' }}>
-          <Box>
-            {/* Member Overview */}
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: { xs: 'column', sm: 'row' },
-                alignItems: { xs: 'center', sm: 'flex-start' },
-                gap: 3,
-                p: 2,
-                mb: 4,
-                bgcolor: 'white',
-                borderRadius: 2,
-                boxShadow: 1,
-              }}
-            >
-              <Avatar
-                src={member.profile_image ? `${baseurl}/${member.profile_image.replace(/\\/g, '/')}` : undefined}
-                sx={{
-                  backgroundColor: getColorFromString(member.first_name),
-                  width: 100,
-                  height: 100,
-                  fontSize: 32,
-                  fontWeight: 600,
-                }}
-              >
-                {!member.profile_image && getInitials(member.first_name, member.last_name)}
-              </Avatar>
-
-              <Box textAlign={{ xs: 'center', sm: 'left' }}>
-                <Typography variant="h5" fontWeight={700}>
-                  {member.first_name} {member.last_name}
-                </Typography>
-                <Typography variant="body2" color="text.secondary" mt={0.5}>
-                  {member.email}
-                </Typography>
-                <Box sx={{ display: 'flex', gap: 1, mt: 1, justifyContent: { xs: 'center', sm: 'flex-start' }, flexWrap: 'wrap' }}>
-                  <Chip label={member.status} sx={{ bgcolor: getStatusColor(member.status), color: 'white' }} />
-                </Box>
-              </Box>
-            </Box>
-
-            {/* Referral Info */}
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={6}>
-                <Box sx={{ bgcolor: 'white', p: 2, borderRadius: 2, boxShadow: 1 }}>
-                  <Typography variant="subtitle1" fontWeight={600} mb={2}>
-                    📢 Referral Info
-                  </Typography>
-                  <List dense>
-                    <ListItem>
-                      <ListItemIcon><Person color="action" /></ListItemIcon>
-                      <ListItemText primary="Referrer Name" secondary={member.Referral?.referral_name || 'N/A'} />
-                    </ListItem>
-                    <ListItem>
-                      <ListItemIcon><QrCode2 color="action" /></ListItemIcon>
-                      <ListItemText primary="Referral Code" secondary={member.Referral?.referral_code || 'N/A'} />
-                    </ListItem>
-                    <ListItem>
-                      <ListItemIcon><CalendarMonth color="action" /></ListItemIcon>
-                      <ListItemText primary="Join Date" secondary={formatDate(member.join_date)} />
-                    </ListItem>
-                  </List>
-                </Box>
-              </Grid>
-
-              <Grid item xs={12} md={6}>
-                <Box sx={{ bgcolor: 'white', p: 2, borderRadius: 2, boxShadow: 1 }}>
-                  <Typography variant="subtitle1" fontWeight={600} mb={2}>
-                    📄 Additional Info
-                  </Typography>
-                  <List dense>
-                    <ListItem>
-                      <ListItemIcon>  <DisplaySettingsIcon color="action" /></ListItemIcon>
-                      <ListItemText primary="Application ID" secondary={member.application_id || 'N/A'} />
-                    </ListItem>
-                    <ListItem>
-                      <ListItemIcon><Phone color="action" /></ListItemIcon>
-                      <ListItemText primary="Contact Number" secondary={member.contact_no || 'N/A'} />
-                    </ListItem>
-                  </List>
-                </Box>
-              </Grid>
-            </Grid>
-          </Box>
-        </DialogContent>
-
-        <DialogActions sx={{ px: 3, py: 2, bgcolor: '#f0f0f0' }}>
-          <Button variant="outlined" onClick={onClose} sx={{
-                            bgcolor: '#4CAF50',
-                            minWidth: 120,
-                            '&:hover': { bgcolor: '#45a049' },
-                            color: "#fff",
-                             py: 1.5, px: 4 
-                        }}>Close</Button>
-        </DialogActions>
-      </Dialog>
-
-    );
-  };
-
-  const EditModal = ({ open, onClose, member, onSubmit }) => {
-    if (!member) return null;
-    const [status, setStatus] = useState(member.status || 'Pending');
-
-    return (
-      <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-        <DialogTitle sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography variant="h6">Edit Referral</Typography>
-          <IconButton onClick={onClose} size="small">
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <form onSubmit={onSubmit}>
-          <DialogContent>
-            <Box sx={{ mt: 2 }}>
-              <Grid container spacing={3}>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Member Name"
-                    value={`${member.first_name || ''} ${member.last_name || ''}`}
-                    variant="outlined"
-                    disabled
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Email"
-                    value={member.email || ''}
-                    variant="outlined"
-                    disabled
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Referrer Name"
-                    value={member.Referral?.referral_name || ''}
-                    variant="outlined"
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Referral Code"
-                    value={member.Referral?.referral_code || ''}
-                    variant="outlined"
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <FormControl fullWidth>
-                    <InputLabel>Status</InputLabel>
-                    <Select
-                      value={status}
-                      onChange={(e) => setStatus(e.target.value)}
-                      label="Status"
-                    >
-                      <MenuItem value="Approved">Approved</MenuItem>
-                      <MenuItem value="Pending">Pending</MenuItem>
-                      <MenuItem value="Rejected">Rejected</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-              </Grid>
-            </Box>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={onClose}>Cancel</Button>
-            <Button type="submit" variant="contained" color="primary">
-              Save Changes
-            </Button>
-          </DialogActions>
-        </form>
-      </Dialog>
-    );
   };
 
   if (loading) {
@@ -684,19 +715,6 @@ const handleDelete = async (member) => {
                           >
                             <InfoIcon sx={{ fontSize: 16 }} />
                           </IconButton>
-                          {/* <IconButton
-                            size="small"
-                            onClick={() => handleEditModalOpen(member)}
-                            sx={{
-                              backgroundColor: '#FF9800',
-                              color: 'white',
-                              width: 32,
-                              height: 32,
-                              '&:hover': { backgroundColor: '#F57C00' }
-                            }}
-                          >
-                            <EditIcon sx={{ fontSize: 16 }} />
-                          </IconButton> */}
                           <IconButton
                             size="small"
                             onClick={() => handleDelete(member)}
