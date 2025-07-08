@@ -1,2 +1,2 @@
-const baseurl = "http://localhost:8000";
+const baseurl = "https://kbc.boonnet.co";
 export default baseurl;
