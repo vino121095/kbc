@@ -16,8 +16,7 @@ import {
     Phone, WhatsApp, Email, Share
 } from '@mui/icons-material';
 import { useCustomTheme } from '../../context/ThemeContext';
-
-const BaseUrl = 'http://localhost:8000';
+import baseurl from '../Baseurl/baseurl';
 
 const BusinessDetailView = () => {
     const { t } = useTranslation();
@@ -35,7 +34,7 @@ const BusinessDetailView = () => {
         const token = localStorage.getItem('token');
 
         if (stored?.mid && token) {
-            fetch(`${BaseUrl}/api/member/${stored.mid}`, {
+            fetch(`${baseurl}/api/member/${stored.mid}`, {
                 headers: { Authorization: `Bearer ${token}` }
             })
                 .then((res) => res.json())
@@ -65,7 +64,7 @@ const BusinessDetailView = () => {
         const fetchMemberData = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await fetch(`http://localhost:8000/api/member/${id}`, {
+                const res = await fetch(`${baseurl}/api/member/${id}`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 const data = await res.json();
@@ -151,7 +150,7 @@ const BusinessDetailView = () => {
                     <Avatar
                         src={
                             loggedInMember?.profile_image
-                                ? `http://localhost:8000/${loggedInMember.profile_image}`
+                                ? `${baseurl}/${loggedInMember.profile_image}`
                                 : undefined
                         }
                         sx={{
@@ -229,7 +228,7 @@ const BusinessDetailView = () => {
                                 {profile.business_profile_image && (
                                     <Box sx={{ textAlign: 'center', mb: 2 }}>
                                         <img
-                                            src={`${BaseUrl}/${profile.business_profile_image}`}
+                                            src={`${baseurl}/${profile.business_profile_image}`}
                                             alt="Business"
                                             style={{
                                                 maxWidth: '100%',
@@ -300,13 +299,13 @@ const BusinessDetailView = () => {
                                                             backgroundColor: theme.palette.grey[900]
                                                         }}
                                                     >
-                                                        <source src={`${BaseUrl}/${media}`} type="video/mp4" />
+                                                        <source src={`${baseurl}/${media}`} type="video/mp4" />
                                                         Your browser does not support the video tag.
                                                     </video>
                                                 ) : (
                                                     <img
                                                         key={i}
-                                                        src={`${BaseUrl}/${media}`}
+                                                        src={`${baseurl}/${media}`}
                                                         alt={`media-${i}`}
                                                         style={{
                                                             width: '100%',

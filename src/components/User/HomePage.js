@@ -22,8 +22,7 @@ import { useTranslation } from 'react-i18next';
 import Footer from '../Footer';
 import Rating from '@mui/material/Rating';
 import { useCustomTheme } from '../../context/ThemeContext';
-
-const BaseUrl = 'http://localhost:8000';
+import baseurl from '../Baseurl/baseurl';
 
 const filters = [
   'Company Name',
@@ -54,7 +53,7 @@ const HomePage = () => {
   const fetchMemberRatings = async (memberId, businessId) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`${BaseUrl}/api/ratings/${businessId}`, {
+      const response = await fetch(`${baseurl}/api/ratings/${businessId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await response.json();
@@ -83,7 +82,7 @@ const HomePage = () => {
     const token = localStorage.getItem('token');
 
     if (stored?.mid && token) {
-      fetch(`${BaseUrl}/api/member/${stored.mid}`, {
+      fetch(`${baseurl}/api/member/${stored.mid}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then((res) => res.json())
@@ -111,7 +110,7 @@ const HomePage = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    fetch(`${BaseUrl}/api/member/all`, {
+    fetch(`${baseurl}/api/member/all`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then((res) => res.json())
@@ -238,7 +237,7 @@ const HomePage = () => {
         return;
       }
 
-      const response = await fetch(`${BaseUrl}/api/profileview`, {
+      const response = await fetch(`${baseurl}/api/profileview`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -320,7 +319,7 @@ const HomePage = () => {
           <Avatar
             src={
               loggedInMember?.profile_image
-                ? `http://localhost:8000/${loggedInMember.profile_image}`
+                ? `${baseurl}/${loggedInMember.profile_image}`
                 : undefined
             }
             sx={{ ml: 2 }}
@@ -425,7 +424,7 @@ const HomePage = () => {
                     <Avatar
                       src={
                         member.BusinessProfiles?.[0]?.business_profile_image
-                          ? `${BaseUrl}/${member.BusinessProfiles[0].business_profile_image}`
+                          ? `${baseurl}/${member.BusinessProfiles[0].business_profile_image}`
                           : undefined
                       }
                     >

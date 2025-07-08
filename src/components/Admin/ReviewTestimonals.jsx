@@ -24,6 +24,7 @@ import {
 } from '@mui/material';
 import { Search, Visibility, Close, FilterList, FileDownload } from '@mui/icons-material';
 import * as XLSX from 'xlsx'; // Import the Excel library
+import baseurl from '../Baseurl/baseurl';
 
 const ReviewsTestimonialsManagement = () => {
   const [activeTab, setActiveTab] = useState('All Reviews');
@@ -37,7 +38,7 @@ const ReviewsTestimonialsManagement = () => {
 
   const fetchReviews = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/ratings/all', {
+      const response = await fetch(`${baseurl}/api/ratings/all`, {
         method: 'GET',
         credentials: 'include',
       });
@@ -111,7 +112,7 @@ const ReviewsTestimonialsManagement = () => {
   const handleStatusChange = async (id, newStatus) => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:8000/api/${id}/status`, {
+      const response = await fetch(`${baseurl}/api/${id}/status`, {
         method: 'PATCH',
         credentials: 'include',
         headers: {

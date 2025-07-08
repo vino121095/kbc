@@ -15,6 +15,7 @@ import { useTranslation } from 'react-i18next';
 import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import Footer from '../Footer';
 import { useCustomTheme } from '../../context/ThemeContext';
+import baseurl from '../Baseurl/baseurl';
 
 const UserProfilePage = () => {
   const navigate = useNavigate();
@@ -30,7 +31,7 @@ const UserProfilePage = () => {
     const token = localStorage.getItem('token');
 
     if (stored?.mid && token) {
-      fetch(`http://localhost:8000/api/member/${stored.mid}`, {
+      fetch(`${baseurl}/api/member/${stored.mid}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then((res) => res.json())
@@ -38,7 +39,7 @@ const UserProfilePage = () => {
           if (data.success && data.data) {
             setMember(data.data);
             if (data.data.profile_image) {
-              setImage(`http://localhost:8000/${data.data.profile_image}`);
+              setImage(`${baseurl}/${data.data.profile_image}`);
             }
           }
           setLoading(false);

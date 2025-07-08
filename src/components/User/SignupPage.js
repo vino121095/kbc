@@ -20,6 +20,7 @@ import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
+import baseurl from '../Baseurl/baseurl';
 
 const SignupPage = () => {
   const { t } = useTranslation();
@@ -309,7 +310,7 @@ const SignupPage = () => {
         formDataToSend.append('family_details', JSON.stringify(familyDetails));
       }
 
-      const apiUrl = 'http://localhost:8000/api/member/register';
+      const apiUrl = `${baseurl}/api/member/register`;
 
       const response = await fetch(apiUrl, {
         method: 'POST',

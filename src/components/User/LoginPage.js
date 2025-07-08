@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Box, Typography, TextField, Button, Snackbar, Alert } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
+import baseurl from '../Baseurl/baseurl';
 
 const LoginPage = () => {
   const { t } = useTranslation();
@@ -27,7 +28,7 @@ const LoginPage = () => {
     };
 
     try {
-      const response = await fetch('http://localhost:8000/api/member/login', {
+      const response = await fetch(`${baseurl}/api/member/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

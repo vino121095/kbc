@@ -14,6 +14,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import FamilyRestroomIcon from '@mui/icons-material/FamilyRestroom';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import Footer from '../Footer';
+import baseurl from '../Baseurl/baseurl';
 
 const DetailsPage = () => {
   const theme = useTheme();
@@ -32,7 +33,7 @@ const DetailsPage = () => {
     const token = localStorage.getItem('token');
 
     if (stored?.mid && token) {
-      fetch(`http://localhost:8000/api/member/${stored.mid}`, {
+      fetch(`${baseurl}/api/member/${stored.mid}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then((res) => res.json())
@@ -51,7 +52,7 @@ const DetailsPage = () => {
     const fetchMemberData = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch(`http://localhost:8000/api/member/${id}`, {
+        const res = await fetch(`${baseurl}/api/member/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         const data = await res.json();
@@ -72,7 +73,7 @@ const DetailsPage = () => {
     const fetchRatings = async (businessId) => {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch(`http://localhost:8000/api/ratings/${businessId}`, {
+        const res = await fetch(`${baseurl}/api/ratings/${businessId}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         const data = await res.json();
@@ -154,7 +155,7 @@ const DetailsPage = () => {
         </Box>
         <Box display="flex" flexDirection="column" alignItems="center" mt={2}>
           <Avatar
-            src={`http://localhost:8000/${member.profile_image}`}
+            src={`${baseurl}/${member.profile_image}`}
             sx={{ width: 80, height: 80 }}
           >
             {member.first_name?.[0]}{member.last_name?.[0]}
@@ -234,7 +235,7 @@ const DetailsPage = () => {
                             </Typography>
                             <Box mt={1}>
                               <img
-                                src={`http://localhost:8000/${profile.business_profile_image}`}
+                                src={`${baseurl}/${profile.business_profile_image}`}
                                 alt="Business Profile"
                                 style={{ maxWidth: '100px', borderRadius: 8 }}
                               />
@@ -253,12 +254,12 @@ const DetailsPage = () => {
                                 <Box key={i} sx={{ width: 160 }}>
                                   {isVideo(file) ? (
                                     <video controls width="100%" style={{ borderRadius: 8 }}>
-                                      <source src={`http://localhost:8000/${file}`} type="video/mp4" />
+                                      <source src={`${baseurl}/${file}`} type="video/mp4" />
                                       Your browser does not support the video tag.
                                     </video>
                                   ) : (
                                     <img
-                                      src={`http://localhost:8000/${file}`}
+                                      src={`${baseurl}/${file}`}
                                       alt={`Media ${i + 1}`}
                                       style={{ width: '100%', borderRadius: 8 }}
                                     />
@@ -362,7 +363,7 @@ const DetailsPage = () => {
                   {ratings.map((rating, index) => (
                     <ListItem key={rating.rid || index} alignItems="flex-start" sx={{ px: 0 }}>
                       <ListItemAvatar>
-                        <Avatar src={rating.user?.profile_image ? `http://localhost:8000/${rating.user.profile_image}` : undefined}>
+                        <Avatar src={rating.user?.profile_image ? `${baseurl}/${rating.user.profile_image}` : undefined}>
                           {rating.user?.first_name?.[0]}
                         </Avatar>
                       </ListItemAvatar>

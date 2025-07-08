@@ -27,6 +27,7 @@ import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
 import * as htmlToImage from 'html-to-image';
 import * as XLSX from 'xlsx';
+import baseurl from '../Baseurl/baseurl';
 
 const Dashboard = () => {
   const [totalMembers, setTotalMembers] = useState(0);
@@ -40,7 +41,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchMembers = async () => {
       try {
-        const response = await fetch('http://localhost:8000/api/member/all');
+        const response = await fetch(`${baseurl}/api/member/all`);
         const result = await response.json();
 
         if (result.success && Array.isArray(result.data)) {
@@ -82,7 +83,7 @@ const Dashboard = () => {
 
     const fetchReviews = async () => {
       try {
-        const res = await fetch('http://localhost:8000/api/ratings/all');
+        const res = await fetch(`${baseurl}/api/ratings/all`);
         const result = await res.json();
         if (result?.data) {
           setReviews(result.data);

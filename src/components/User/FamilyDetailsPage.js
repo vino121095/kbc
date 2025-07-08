@@ -12,8 +12,7 @@ import { useTranslation } from 'react-i18next';
 import Footer from '../Footer';
 import { useNavigate, useParams } from 'react-router-dom';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-
-const BaseUrl = 'http://localhost:8000';
+import baseurl from '../Baseurl/baseurl';
 
 const FamilyDetailsPage = () => {
   const { t } = useTranslation();
@@ -48,7 +47,7 @@ const FamilyDetailsPage = () => {
           return;
         }
 
-        const response = await fetch(`${BaseUrl}/api/member/${id}`, {
+        const response = await fetch(`${baseurl}/api/member/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -143,7 +142,7 @@ const FamilyDetailsPage = () => {
         marital_status: formData.marital_status
       };
 
-      const response = await fetch(`${BaseUrl}/api/family-details/update/${memberId}`, {
+      const response = await fetch(`${baseurl}/api/family-details/update/${memberId}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

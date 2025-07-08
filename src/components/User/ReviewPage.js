@@ -5,6 +5,7 @@ import {
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
+import baseurl from '../Baseurl/baseurl';
 
 const ReviewPage = () => {
   const { t } = useTranslation();
@@ -39,7 +40,7 @@ const ReviewPage = () => {
       if (!token) return;
 
       try {
-        const response = await fetch(`http://localhost:8000/api/member/${id}`, {
+        const response = await fetch(`${baseurl}/api/member/${id}`, {
           headers: {
             'Authorization': `Bearer ${token}`
           }
@@ -148,7 +149,7 @@ const ReviewPage = () => {
 
       console.log('Submitting rating with payload:', requestPayload);
 
-      const response = await fetch('http://localhost:8000/api/ratings', {
+      const response = await fetch(`${baseurl}/api/ratings`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

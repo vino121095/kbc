@@ -19,8 +19,7 @@ import { useTranslation } from 'react-i18next';
 import Footer from '../Footer';
 import { useNavigate, useParams } from 'react-router-dom';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-
-const BaseUrl = 'http://localhost:8000';
+import baseurl from '../Baseurl/baseurl';
 
 const PersonalDetailsPage = () => {
   const { t } = useTranslation();
@@ -81,7 +80,7 @@ const PersonalDetailsPage = () => {
         console.log('Fetching member data for ID:', id);
         console.log('Using token:', token);
 
-        const response = await fetch(`${BaseUrl}/api/member/${id}`, {
+        const response = await fetch(`${baseurl}/api/member/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -234,7 +233,7 @@ const PersonalDetailsPage = () => {
       // Append family details as JSON
       formDataToSend.append('family_details', JSON.stringify(familyDetails));
 
-      const response = await fetch(`${BaseUrl}/api/member/update/${memberId}`, {
+      const response = await fetch(`${baseurl}/api/member/update/${memberId}`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`

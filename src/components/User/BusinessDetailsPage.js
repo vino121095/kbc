@@ -13,8 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useParams } from 'react-router-dom';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
 import Footer from '../Footer';
-
-const BaseUrl = 'http://localhost:8000';
+import baseurl from '../Baseurl/baseurl';
 
 const BusinessDetailsPage = () => {
   const { t } = useTranslation();
@@ -45,7 +44,7 @@ const BusinessDetailsPage = () => {
     const fetchData = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await fetch(`${BaseUrl}/api/member/${id}`, {
+        const res = await fetch(`${baseurl}/api/member/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -140,7 +139,7 @@ const BusinessDetailsPage = () => {
         });
       }
 
-      const response = await fetch(`${BaseUrl}/api/business-profile/update/${businessProfileId}`, {
+      const response = await fetch(`${baseurl}/api/business-profile/update/${businessProfileId}`, {
         method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -227,7 +226,7 @@ const BusinessDetailsPage = () => {
             <img
               src={formData.profileImage instanceof File
                 ? URL.createObjectURL(formData.profileImage)
-                : `${BaseUrl}/${formData.profileImage}`}
+                : `${baseurl}/${formData.profileImage}`}
               alt="Business"
               style={{ width: '100%', maxWidth: 300, height: 'auto' }}
             />
@@ -253,7 +252,7 @@ const BusinessDetailsPage = () => {
 
               const mediaUrl = media instanceof File
                 ? URL.createObjectURL(media)
-                : `${BaseUrl}/${media}`;
+                : `${baseurl}/${media}`;
 
               return isVideo ? (
                 <video key={index} src={mediaUrl} width="200" height="150" controls />
