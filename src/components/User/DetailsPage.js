@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box, Typography, Avatar, Divider, Button, IconButton, CircularProgress,
-  Rating, List, ListItem, ListItemText, ListItemAvatar, Grid, Card, CardContent, useTheme
+  Rating, List, ListItem, ListItemText, ListItemAvatar, Grid, Card, CardContent, useTheme, Modal
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import {
@@ -27,6 +27,8 @@ const DetailsPage = () => {
   const [loggedInMember, setLoggedInMember] = useState(null);
   const [ratings, setRatings] = useState([]);
   const [ratingsLoading, setRatingsLoading] = useState(true);
+  const [mediaModalOpen, setMediaModalOpen] = useState(false);
+  const [modalMedia, setModalMedia] = useState([]);
 
   useEffect(() => {
     const stored = JSON.parse(localStorage.getItem('memberData'));
@@ -143,49 +145,93 @@ const DetailsPage = () => {
 
   return (
     <Box>
-      {/* Header */}
-      <Box sx={{ background: 'linear-gradient(to bottom right, #137d13, #3ad13a)', p: 3, color: '#fff', borderBottomLeftRadius: 40, borderBottomRightRadius: 40 }}>
-        <Box display="flex" alignItems="center" gap={1} sx={{ p: 2 }}>
-          <IconButton onClick={() => navigate(-1)} sx={{ color: '#fff' }}>
-            <ArrowBackIosNewIcon />
-          </IconButton>
-          <Typography fontSize={14} fontWeight={600}>
-            {t('memberProfile')}
-          </Typography>
-        </Box>
-        <Box display="flex" flexDirection="column" alignItems="center" mt={2}>
-          <Avatar
-            src={`${baseurl}/${member.profile_image}`}
-            sx={{ width: 80, height: 80 }}
-          >
-            {member.first_name?.[0]}{member.last_name?.[0]}
-          </Avatar>
-          <Typography fontWeight="bold" fontSize={20}>
-            {member.first_name} {member.last_name}
-          </Typography>
-          <Typography>{member.BusinessProfiles?.[0]?.role || '—'}</Typography>
-
-          {/* Ratings */}
+      {/* Header - HomePage style */}
+      <Box
+        sx={{
+          background: 'linear-gradient(135deg, #137d13 0%, #3ad13a 100%)',
+          position: 'relative',
+          overflow: 'hidden',
+          borderBottomLeftRadius: 40,
+          borderBottomRightRadius: 40,
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(10px)',
+            zIndex: 1
+          }
+        }}
+      >
+        <Box sx={{ position: 'relative', zIndex: 2, p: 2, pb: 2.5 }}>
+          <Box display="flex" alignItems="center" gap={1.5}>
+            <IconButton onClick={() => navigate(-1)} sx={{ color: '#fff', mr: 1 }}>
+              <ArrowBackIosNewIcon />
+            </IconButton>
+            <Avatar
+              src={member.profile_image ? `${baseurl}/${member.profile_image}` : undefined}
+              sx={{ width: 64, height: 64, border: '2px solid rgba(255,255,255,0.3)', boxShadow: '0 2px 12px rgba(0,0,0,0.2)', mr: 2 }}
+            >
+              {member.first_name?.[0]}{member.last_name?.[0]}
+            </Avatar>
+            <Box>
+              <Typography variant="h6" color="white" fontWeight="700" sx={{ textShadow: '0 2px 4px rgba(0,0,0,0.3)' }}>
+                {member.first_name} {member.last_name}
+              </Typography>
+              <Typography variant="body2" color="rgba(255,255,255,0.9)" fontWeight="500">
+                {member.BusinessProfiles?.[0]?.role || '—'}
+              </Typography>
+            </Box>
+          </Box>
+          {/* Ratings summary */}
           <Box display="flex" justifyContent="space-around" mt={2} width="100%">
             <Box textAlign="center">
-              <Typography fontWeight="bold">{member.total_reviews || ratings.length}</Typography>
-              <Typography variant="caption">{t('reviews')}</Typography>
+              <Typography fontWeight="bold" color="white">{member.total_reviews || ratings.length}</Typography>
+              <Typography variant="caption" color="white">{t('reviews')}</Typography>
             </Box>
             <Box textAlign="center">
-              <Typography fontWeight="bold">
+              <Typography fontWeight="bold" color="white">
                 {ratings.length > 0
                   ? (ratings.reduce((acc, r) => acc + r.rating, 0) / ratings.length).toFixed(1)
                   : member.avg_rating?.toFixed(1) || '0.0'
                 } ⭐
               </Typography>
-              <Typography variant="caption">{t('rating')}</Typography>
+              <Typography variant="caption" color="white">{t('rating')}</Typography>
             </Box>
             <Box textAlign="center">
-              <Typography fontWeight="bold">{member.rewards || 0}</Typography>
-              <Typography variant="caption">{t('rewards')}</Typography>
+              <Typography fontWeight="bold" color="white">{member.rewards || 0}</Typography>
+              <Typography variant="caption" color="white">{t('rewards')}</Typography>
             </Box>
           </Box>
         </Box>
+        {/* Decorative blurred circles */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: -30,
+            right: -30,
+            width: 60,
+            height: 60,
+            borderRadius: '50%',
+            background: 'rgba(255, 255, 255, 0.1)',
+            zIndex: 1
+          }}
+        />
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: -20,
+            left: -20,
+            width: 40,
+            height: 40,
+            borderRadius: '50%',
+            background: 'rgba(255, 255, 255, 0.1)',
+            zIndex: 1
+          }}
+        />
       </Box>
 
       {/* About Section */}
@@ -220,7 +266,7 @@ const DetailsPage = () => {
                           ['contact', profile.contact],
                           ['email', profile.email],
                         ].map(([label, value], i) => (
-                          <Box key={i} mb={1}>
+                          <Box key={i} mb={2}>
                             <Typography variant="body2">
                               <strong>{t(label)}:</strong> {value || '—'}
                             </Typography>
@@ -229,15 +275,15 @@ const DetailsPage = () => {
 
                         {/* Business Profile Image */}
                         {profile.business_profile_image && (
-                          <Box mt={2}>
+                          <Box mt={2} mb={2}>
                             <Typography variant="body2" fontWeight="bold">
                               {t('Business Profile Image')}:
                             </Typography>
-                            <Box mt={1}>
+                            <Box mt={1} mb={2}>
                               <img
                                 src={`${baseurl}/${profile.business_profile_image}`}
                                 alt="Business Profile"
-                                style={{ maxWidth: '100px', borderRadius: 8 }}
+                                style={{ maxWidth: '100px', borderRadius: 8, marginBottom: 8 }}
                               />
                             </Box>
                           </Box>
@@ -246,14 +292,15 @@ const DetailsPage = () => {
                         {/* Media Gallery */}
                         {mediaGallery.length > 0 && (
                           <Box mt={2}>
-                            <Typography variant="body2" fontWeight="bold">
+                            <Typography variant="body2" fontWeight="bold" mb={1}>
                               {t('mediaGallery')}:
                             </Typography>
                             <Box mt={1} display="flex" flexWrap="wrap" gap={2}>
-                              {mediaGallery.map((file, i) => (
-                                <Box key={i} sx={{ width: 160 }}>
+                              {/* Show only the first image or video */}
+                              {mediaGallery.slice(0, 1).map((file, i) => (
+                                <Box key={i} sx={{ width: 160, mb: 2 }}>
                                   {isVideo(file) ? (
-                                    <video controls width="100%" style={{ borderRadius: 8 }}>
+                                    <video controls width="100%" style={{ borderRadius: 8, marginBottom: 8 }}>
                                       <source src={`${baseurl}/${file}`} type="video/mp4" />
                                       Your browser does not support the video tag.
                                     </video>
@@ -261,12 +308,62 @@ const DetailsPage = () => {
                                     <img
                                       src={`${baseurl}/${file}`}
                                       alt={`Media ${i + 1}`}
-                                      style={{ width: '100%', borderRadius: 8 }}
+                                      style={{ width: '100%', borderRadius: 8, marginBottom: 8 }}
                                     />
                                   )}
                                 </Box>
                               ))}
+                              {/* Show 'View More' button if more than 1 media */}
+                              {mediaGallery.length > 1 && (
+                                <Button
+                                  variant="outlined"
+                                  sx={{ height: 40, alignSelf: 'center', borderRadius: 3, color: 'green', borderColor: 'green', ml: 2 }}
+                                  onClick={() => { setModalMedia(mediaGallery); setMediaModalOpen(true); }}
+                                >
+                                  {t('viewMore')}
+                                </Button>
+                              )}
                             </Box>
+                            {/* Modal for all media */}
+                            <Modal open={mediaModalOpen} onClose={() => setMediaModalOpen(false)}>
+                              <Box
+                                sx={{
+                                  position: 'absolute',
+                                  top: '50%',
+                                  left: '50%',
+                                  transform: 'translate(-50%, -50%)',
+                                  bgcolor: 'background.paper',
+                                  boxShadow: 24,
+                                  borderRadius: 3,
+                                  p: 3,
+                                  maxWidth: 600,
+                                  width: '90vw',
+                                  maxHeight: '90vh',
+                                  overflowY: 'auto',
+                                }}
+                              >
+                                <Typography variant="h6" mb={2}>{t('mediaGallery')}</Typography>
+                                <Box display="flex" flexWrap="wrap" gap={2}>
+                                  {modalMedia.map((file, i) => (
+                                    <Box key={i} sx={{ width: 180, mb: 2 }}>
+                                      {isVideo(file) ? (
+                                        <video controls width="100%" style={{ borderRadius: 8, marginBottom: 8 }}>
+                                          <source src={`${baseurl}/${file}`} type="video/mp4" />
+                                          Your browser does not support the video tag.
+                                        </video>
+                                      ) : (
+                                        <img
+                                          src={`${baseurl}/${file}`}
+                                          alt={`Media ${i + 1}`}
+                                          style={{ width: '100%', borderRadius: 8, marginBottom: 8 }}
+                                        />
+                                      )}
+                                    </Box>
+                                  ))}
+                                </Box>
+                                <Button onClick={() => setMediaModalOpen(false)} sx={{ mt: 3, borderRadius: 3 }} variant="contained" color="success">{t('close')}</Button>
+                              </Box>
+                            </Modal>
                           </Box>
                         )}
                       </Box>
@@ -297,9 +394,11 @@ const DetailsPage = () => {
                     ['email', member.email],
                   ].map(([label, value], index) => (
                     <Grid item xs={12} sm={6} key={index}>
-                      <Typography variant="body2">
-                        <strong>{t(label)}:</strong> {value || '—'}
-                      </Typography>
+                      <Box mb={2}>
+                        <Typography variant="body2">
+                          <strong>{t(label)}:</strong> {value || '—'}
+                        </Typography>
+                      </Box>
                     </Grid>
                   ))}
                 </Box>
@@ -320,9 +419,29 @@ const DetailsPage = () => {
                     ['homeAddress', member.MemberFamily?.address],
                   ].map(([label, value], index) => (
                     <Grid item xs={12} sm={6} key={index}>
-                      <Typography variant="body2">
-                        <strong>{t(label)}:</strong> {value || '—'}
-                      </Typography>
+                      <Box mb={2}>
+                        <Typography variant="body2">
+                          <strong>{t(label)}:</strong>{' '}
+                          {label === 'childrenName' ? (
+                            (() => {
+                              let names = value;
+                              if (typeof names === 'string') {
+                                try {
+                                  names = JSON.parse(names);
+                                } catch {
+                                  // not JSON, fallback
+                                }
+                              }
+                              if (Array.isArray(names) && names.length > 0) {
+                                return names.join(', ');
+                              }
+                              return '—';
+                            })()
+                          ) : (
+                            value || '—'
+                          )}
+                        </Typography>
+                      </Box>
                     </Grid>
                   ))}
                 </Box>

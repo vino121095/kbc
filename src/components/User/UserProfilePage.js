@@ -84,30 +84,48 @@ const UserProfilePage = () => {
 
   return (
     <Box pb={7}>
-      <Box sx={{ bgcolor: 'green', p: 3, color: 'white', textAlign: 'center', position: 'relative' }}>
-        <Avatar src={image} sx={{ margin: 'auto', width: 60, height: 60 }}>
-          {!image && member.first_name?.[0]}
-        </Avatar>
-        <label htmlFor="upload-photo">
-          <input
-            style={{ display: 'none' }}
-            id="upload-photo"
-            name="upload-photo"
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-          />
-          {/* <IconButton
-            color="default"
-            aria-label="upload picture"
-            component="span"
-            sx={{ position: 'absolute', top: 55, right: '40%' }}
-          >
-            <PhotoCamera sx={{ color: 'white' }} />
-          </IconButton> */}
-        </label>
-        <Typography variant="h6">{fullName}</Typography>
-        <Typography variant="body2">{email}</Typography>
+      {/* Modern Header Section */}
+      <Box
+        sx={{
+          background: 'linear-gradient(135deg, #137d13 0%, #3ad13a 100%)',
+          position: 'relative',
+          overflow: 'hidden',
+          borderBottomLeftRadius: { xs: 16, sm: 30 },
+          borderBottomRightRadius: { xs: 16, sm: 30 },
+          boxShadow: '0 4px 24px 0 rgba(34,197,94,0.12)',
+          px: { xs: 2, sm: 4 },
+          py: { xs: 3, sm: 4 },
+          mb: 2
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
+          {/* Left: Avatar and Info */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+            <Avatar src={image} sx={{ width: 72, height: 72, bgcolor: 'white', color: 'primary.main', fontWeight: 'bold', fontSize: 32, boxShadow: 2 }}>
+              {!image && member.first_name?.[0]}
+            </Avatar>
+            <Box>
+              <Typography variant="h5" color="white" fontWeight="bold" sx={{textAlign: "left"}}>
+                {fullName}
+              </Typography>
+              <Typography variant="body1" color="rgba(255,255,255,0.9)" sx={{textAlign: "left"}}>
+                {email}
+              </Typography>
+            </Box>
+          </Box>
+          {/* Right: Application Status */}
+          <Box sx={{ mt: { xs: 2, sm: 0 }, textAlign: { xs: 'left', sm: 'right' } }}>
+            <Typography variant="caption" color="white" sx={{ fontWeight: 600, opacity: 0.8 }}>
+              {t('applicationStatus')}
+            </Typography>
+            <Typography variant="subtitle1" color="white" fontWeight="bold">
+              {status}
+            </Typography>
+          </Box>
+        </Box>
+        {/* Decorative Circles */}
+        <Box sx={{ position: 'absolute', top: -30, right: -30, width: 60, height: 60, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', zIndex: 1 }} />
+        <Box sx={{ position: 'absolute', bottom: -20, left: -20, width: 40, height: 40, borderRadius: '50%', background: 'rgba(255,255,255,0.1)', zIndex: 1 }} />
       </Box>
 
       <List>
@@ -138,9 +156,6 @@ const UserProfilePage = () => {
         <ListItem>
           <ListItemText primary={t('darkMode')} />
           <Switch checked={mode === 'dark'} onChange={toggleTheme} />
-        </ListItem>
-        <ListItem>
-          <ListItemText primary={t('applicationStatus')} secondary={status} />
         </ListItem>
         <ListItem
           onClick={() => {

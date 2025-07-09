@@ -14,9 +14,23 @@ import {
   IconButton,
   Snackbar,
   Alert,
-  useTheme
+  useTheme,
+  Fade,
+  Skeleton,
+  Badge,
+  Divider
 } from '@mui/material';
-import { Search, FilterList } from '@mui/icons-material';
+import { 
+  Search, 
+  FilterList, 
+  BusinessCenter, 
+  Person, 
+  LocationOn, 
+  Star, 
+  Visibility,
+  TrendingUp,
+  Groups
+} from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Footer from '../Footer';
@@ -49,6 +63,7 @@ const HomePage = () => {
   const [selectedFilter, setSelectedFilter] = useState('');
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [memberRatings, setMemberRatings] = useState({});
+  const [loading, setLoading] = useState(true);
 
   const fetchMemberRatings = async (memberId, businessId) => {
     try {
@@ -92,8 +107,14 @@ const HomePage = () => {
           } else {
             setLoggedInMember(stored);
           }
+          setLoading(false);
         })
-        .catch(() => setLoggedInMember(stored));
+        .catch(() => {
+          setLoggedInMember(stored);
+          setLoading(false);
+        });
+    } else {
+      setLoading(false);
     }
   }, []);
 
@@ -276,76 +297,215 @@ const HomePage = () => {
     setSnackbar({ ...snackbar, open: false });
   };
 
+  const getFilterIcon = (filter) => {
+    switch (filter) {
+      case 'All': return <Groups />;
+      case 'Members': return <Person />;
+      case 'Business Type': return <BusinessCenter />;
+      default: return <Groups />;
+    }
+  };
+
+  if (loading) {
+    return (
+      <Box sx={{ 
+        bgcolor: theme.palette.background.default,
+        minHeight: '100vh',
+        p: 2
+      }}>
+        <Skeleton variant="rectangular" height={140} sx={{ borderRadius: 4, mb: 2 }} />
+        <Skeleton variant="text" height={40} sx={{ mb: 2 }} />
+        {[...Array(3)].map((_, i) => (
+          <Skeleton key={i} variant="rectangular" height={120} sx={{ borderRadius: 3, mb: 2 }} />
+        ))}
+      </Box>
+    );
+  }
+
   return (
     <Box sx={{ 
       bgcolor: theme.palette.background.default,
       minHeight: '100vh',
       color: theme.palette.text.primary
     }}>
-      {/* Header */}
+      {/* Compact Header with Reduced Height */}
       <Box
         sx={{
-          background: 'linear-gradient(to bottom right, #137d13, #3ad13a)',
-          p: 2,
-          borderBottomLeftRadius: 30,
-          borderBottomRightRadius: 30
+          background: 'linear-gradient(135deg, #137d13 0%, #3ad13a 100%)',
+          position: 'relative',
+          overflow: 'hidden',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(255, 255, 255, 0.1)',
+            backdropFilter: 'blur(10px)',
+            zIndex: 1
+          }
         }}
       >
-        <Typography variant="h5" color="white" fontWeight="bold" sx={{textAlign: "left"}}>
-          {t('welcomeBack')} 👋
-        </Typography>
-        <Typography variant="subtitle1" color="white" sx={{textAlign: "left"}}>
-          {loggedInMember ? `${loggedInMember.first_name} ${loggedInMember.last_name}` : ''}
-        </Typography>
+        <Box sx={{ 
+          position: 'relative', 
+          zIndex: 2, 
+          p: 2,
+          pb: 2.5
+        }}>
+          <Fade in timeout={1000}>
+            <Box sx={{ mb: 2 }}>
+              <Typography 
+                variant="h5" 
+                color="white" 
+                fontWeight="700" 
+                sx={{
+                  textAlign: "left",
+                  mb: 0.5,
+                  textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                }}
+              >
+                {t('Welcome Back')} 👋
+              </Typography>
+              <Typography 
+                variant="body1" 
+                color="rgba(255, 255, 255, 0.9)" 
+                sx={{
+                  textAlign: "left",
+                  fontWeight: '500'
+                }}
+              >
+                {loggedInMember ? `${loggedInMember.first_name} ${loggedInMember.last_name}` : ''}
+              </Typography>
+            </Box>
+          </Fade>
 
-        <Box mt={2} display="flex" alignItems="center">
-          <TextField
-            fullWidth
-            variant="outlined"
-            placeholder={t('searchPlaceholder')}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            InputProps={{
-              startAdornment: <Search sx={{ color: 'gray' }} />,
-              sx: { 
-                borderRadius: 10, 
-                backgroundColor: 'background.paper',
-                '& .MuiInputBase-input': {
-                  color: theme.palette.text.primary
+          {/* Compact Search Bar */}
+          <Box display="flex" alignItems="center" gap={1.5}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              placeholder={t('search')}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              size="small"
+              InputProps={{
+                startAdornment: <Search sx={{ color: theme.palette.primary.main, mr: 1 }} />,
+                sx: { 
+                  borderRadius: 3,
+                  backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                  backdropFilter: 'blur(10px)',
+                  border: 'none',
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    border: 'none'
+                  },
+                  '&:hover .MuiOutlinedInput-notchedOutline': {
+                    border: 'none'
+                  },
+                  '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    border: `2px solid ${theme.palette.primary.main}`
+                  },
+                  '& .MuiInputBase-input': {
+                    color: theme.palette.text.primary,
+                    fontWeight: '500',
+                    py: 1.5
+                  },
+                  boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+                  transition: 'all 0.3s ease'
                 }
-              }
-            }}
-          />
-          <Avatar
-            src={
-              loggedInMember?.profile_image
-                ? `${baseurl}/${loggedInMember.profile_image}`
-                : undefined
-            }
-            sx={{ ml: 2 }}
-          >
-            {!loggedInMember?.profile_image && loggedInMember?.first_name?.[0]}
-          </Avatar>
+              }}
+            />
+            <Badge 
+              color="primary" 
+              variant="dot" 
+              invisible={!loggedInMember?.profile_image}
+            >
+              <Avatar
+                src={
+                  loggedInMember?.profile_image
+                    ? `${baseurl}/${loggedInMember.profile_image}`
+                    : undefined
+                }
+                sx={{ 
+                  width: 48, 
+                  height: 48,
+                  border: '2px solid rgba(255, 255, 255, 0.3)',
+                  boxShadow: '0 2px 12px rgba(0,0,0,0.2)',
+                  transition: 'transform 0.3s ease',
+                  '&:hover': {
+                    transform: 'scale(1.05)'
+                  }
+                }}
+              >
+                {!loggedInMember?.profile_image && loggedInMember?.first_name?.[0]}
+              </Avatar>
+            </Badge>
+          </Box>
+
+          {selectedFilter && (
+            <Fade in timeout={300}>
+              <Box
+                sx={{
+                  mt: 1.5,
+                  p: 1,
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  borderRadius: 2,
+                  backdropFilter: 'blur(10px)'
+                }}
+              >
+                <Typography variant="caption" sx={{ color: 'white', fontWeight: '600' }}>
+                  <FilterList sx={{ fontSize: 14, mr: 0.5, verticalAlign: 'middle' }} />
+                  Active Filter: {selectedFilter}
+                </Typography>
+              </Box>
+            </Fade>
+          )}
         </Box>
 
-        {selectedFilter && (
-          <Typography variant="caption" sx={{ mt: 1, color: 'white' }}>
-            Filter: {selectedFilter}
-          </Typography>
-        )}
+        {/* Smaller Decorative Elements */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: -30,
+            right: -30,
+            width: 60,
+            height: 60,
+            borderRadius: '50%',
+            background: 'rgba(255, 255, 255, 0.1)',
+            zIndex: 1
+          }}
+        />
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: -20,
+            left: -20,
+            width: 40,
+            height: 40,
+            borderRadius: '50%',
+            background: 'rgba(255, 255, 255, 0.1)',
+            zIndex: 1
+          }}
+        />
       </Box>
 
-      {/* Filter Chips */}
+      {/* Compact Filter Chips */}
       <Box
         sx={{
           px: 2,
-          pt: 2,
+          py: 1.5,
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center'
+          alignItems: 'center',
+          backgroundColor: theme.palette.background.paper,
+          borderRadius: '0 0 16px 16px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          mt: -1.5,
+          position: 'relative',
+          zIndex: 3
         }}
       >
-        <Box>
+        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
           {loggedInMember &&
             ['All', 'Members', 'Business Type']
               .filter((status) => {
@@ -357,159 +517,263 @@ const HomePage = () => {
               .map((status) => (
                 <Chip
                   key={status}
+                  icon={getFilterIcon(status)}
                   label={t(status.toLowerCase())}
+                  size="small"
                   sx={{
-                    mr: 1,
-                    color: chipFilter === status ? 'white' : 'default',
-                    background:
-                      chipFilter === status
-                        ? 'linear-gradient(to bottom right, #137d13, #3ad13a)'
-                        : theme.palette.mode === 'dark' 
-                          ? theme.palette.grey[700] 
-                          : theme.palette.grey[300]
+                    color: chipFilter === status ? 'white' : theme.palette.text.primary,
+                    background: chipFilter === status
+                      ? 'linear-gradient(135deg, #137d13, #3ad13a)'
+                      : theme.palette.mode === 'dark' 
+                        ? theme.palette.grey[700] 
+                        : theme.palette.grey[200],
+                    fontWeight: chipFilter === status ? '600' : '500',
+                    boxShadow: chipFilter === status ? '0 2px 8px rgba(19, 125, 19, 0.3)' : 'none',
+                    transition: 'all 0.3s ease',
+                    '&:hover': {
+                      transform: 'translateY(-1px)',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                    }
                   }}
                   onClick={() => setChipFilter(status)}
                 />
               ))}
         </Box>
 
-        <Box>
-          <IconButton onClick={handleFilterClick} sx={{ color: theme.palette.text.primary }}>
-            <FilterList />
-          </IconButton>
-          <Menu 
-            anchorEl={anchorEl} 
-            open={Boolean(anchorEl)} 
-            onClose={handleFilterClose}
-            PaperProps={{
-              style: {
-                backgroundColor: theme.palette.background.paper,
-                color: theme.palette.text.primary
-              }
-            }}
-          >
-            {filters.map((filter) => (
-              <MenuItem
-                key={filter}
-                onClick={() => {
-                  setSelectedFilter(filter);
-                  handleFilterClose();
-                }}
-              >
-                {t(filter)}
-              </MenuItem>
-            ))}
-          </Menu>
-        </Box>
-      </Box>
-
-      {/* Members List */}
-      <Box px={2}>
-        {displayedMembers.length === 0 ? (
-          <Typography sx={{ mt: 2, textAlign: 'center' }}>{t('noMembers')}</Typography>
-        ) : (
-          displayedMembers.map((member) => (
-            <Card 
-              key={member.mid} 
-              sx={{ 
-                my: 2, 
-                borderRadius: 3, 
-                backgroundColor: theme.palette.background.paper,
-                color: theme.palette.text.primary
+        <IconButton 
+          onClick={handleFilterClick} 
+          size="small"
+          sx={{ 
+            color: theme.palette.text.primary,
+            backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[100],
+            '&:hover': {
+              backgroundColor: theme.palette.primary.main,
+              color: 'white',
+              transform: 'rotate(180deg)'
+            },
+            transition: 'all 0.3s ease'
+          }}
+        >
+          <FilterList />
+        </IconButton>
+        <Menu 
+          anchorEl={anchorEl} 
+          open={Boolean(anchorEl)} 
+          onClose={handleFilterClose}
+          PaperProps={{
+            sx: {
+              backgroundColor: theme.palette.background.paper,
+              color: theme.palette.text.primary,
+              borderRadius: 2,
+              boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+              backdropFilter: 'blur(10px)',
+              border: `1px solid ${theme.palette.divider}`
+            }
+          }}
+        >
+          {filters.map((filter) => (
+            <MenuItem
+              key={filter}
+              onClick={() => {
+                setSelectedFilter(filter);
+                handleFilterClose();
+              }}
+              sx={{
+                '&:hover': {
+                  backgroundColor: theme.palette.primary.main,
+                  color: 'white'
+                }
               }}
             >
-              <CardContent>
-                <Box display="flex" alignItems="center" justifyContent="space-between">
-                  <Box display="flex" alignItems="center">
-                    <Avatar
-                      src={
-                        member.BusinessProfiles?.[0]?.business_profile_image
-                          ? `${baseurl}/${member.BusinessProfiles[0].business_profile_image}`
-                          : undefined
-                      }
-                    >
-                      {!member.BusinessProfiles?.[0]?.business_profile_image &&
-                        `${member.first_name?.[0] || ''}${member.last_name?.[0] || ''}`}
-                    </Avatar>
+              {t(filter)}
+            </MenuItem>
+          ))}
+        </Menu>
+      </Box>
 
-                    <Box ml={2} sx={{ color: theme.palette.text.primary }}>
+      {/* Enhanced Members List */}
+      <Box px={2} py={1.5}>
+        {displayedMembers.length === 0 ? (
+          <Fade in timeout={500}>
+            <Box 
+              sx={{ 
+                textAlign: 'center', 
+                py: 6,
+                color: theme.palette.text.secondary
+              }}
+            >
+              <Groups sx={{ fontSize: 48, mb: 2, opacity: 0.5 }} />
+              <Typography variant="h6" sx={{ mb: 1 }}>
+                {t('noMembers')}
+              </Typography>
+              <Typography variant="body2">
+                Try adjusting your filters or search terms
+              </Typography>
+            </Box>
+          </Fade>
+        ) : (
+          displayedMembers.map((member, index) => (
+            <Fade key={member.mid} in timeout={300 + index * 100}>
+              <Card 
+                sx={{ 
+                  mb: 2, 
+                  borderRadius: 3,
+                  backgroundColor: theme.palette.background.paper,
+                  color: theme.palette.text.primary,
+                  boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+                  border: `1px solid ${theme.palette.divider}`,
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.12)'
+                  }
+                }}
+              >
+                <CardContent sx={{ p: 2.5, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
+                  <Box display="flex" alignItems="flex-start" width="100%">
+                    <Badge 
+                      color="success" 
+                      variant="dot" 
+                      invisible={!member.online}
+                      sx={{
+                        '& .MuiBadge-badge': {
+                          width: 10,
+                          height: 10,
+                          borderRadius: '50%',
+                          border: '2px solid white'
+                        }
+                      }}
+                    >
+                      <Avatar
+                        src={
+                          member.BusinessProfiles?.[0]?.business_profile_image
+                            ? `${baseurl}/${member.BusinessProfiles[0].business_profile_image}`
+                            : undefined
+                        }
+                        sx={{
+                          width: 56,
+                          height: 56,
+                          border: '2px solid',
+                          borderColor: theme.palette.primary.main,
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+                        }}
+                      >
+                        {!member.BusinessProfiles?.[0]?.business_profile_image &&
+                          `${member.first_name?.[0] || ''}${member.last_name?.[0] || ''}`}
+                      </Avatar>
+                    </Badge>
+                    <Box ml={2} flex={1} minWidth={0}>
                       {(() => {
                         switch (chipFilter) {
                           case 'Members':
                             return (
                               <>
-                                <Typography fontWeight="bold">
+                                <Typography variant="h6" fontWeight="700" sx={{ mb: 0.5, textAlign: 'left' }}>
                                   {member.first_name} {member.last_name}
                                 </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                  {member.email || t('noEmail')}
-                                </Typography>
+                                <Box display="flex" alignItems="center" mb={1}>
+                                  <Person sx={{ fontSize: 14, mr: 0.5, color: theme.palette.text.secondary }} />
+                                  <Typography variant="body2" color="textSecondary">
+                                    {member.email || t('noEmail')}
+                                  </Typography>
+                                </Box>
                               </>
                             );
                           case 'Business Type':
                             return (
                               <>
-                                <Typography fontWeight="bold">
+                                <Typography variant="h6" fontWeight="700" sx={{ mb: 0.5, textAlign: 'left' }}>
                                   {member.BusinessProfiles?.[0]?.company_name || t('noBusinessInfo')}
                                 </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                  {member.BusinessProfiles?.[0]?.business_type || t('noBusinessInfo')}
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                  {member.BusinessProfiles?.[0]?.company_address || t('noAddress')}
-                                </Typography>
+                                <Box display="flex" alignItems="center" mb={0.5}>
+                                  <BusinessCenter sx={{ fontSize: 14, mr: 0.5, color: theme.palette.text.secondary }} />
+                                  <Typography variant="body2" color="textSecondary">
+                                    {member.BusinessProfiles?.[0]?.business_type || t('noBusinessInfo')}
+                                  </Typography>
+                                </Box>
+                                <Box display="flex" alignItems="center" mb={1}>
+                                  <LocationOn sx={{ fontSize: 14, mr: 0.5, color: theme.palette.text.secondary }} />
+                                  <Typography variant="body2" color="textSecondary">
+                                    {member.BusinessProfiles?.[0]?.company_address || t('noAddress')}
+                                  </Typography>
+                                </Box>
                               </>
                             );
                           case 'All':
                           default:
                             return (
                               <>
-                                <Typography fontWeight="bold">
+                                <Typography variant="h6" fontWeight="700" sx={{ mb: 0.5, textAlign: 'left' }}>
                                   {member.first_name} {member.last_name}
                                 </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                  {member.BusinessProfiles?.[0]?.company_name || t('noBusinessInfo')}
-                                </Typography>
-                                <Typography variant="body2" color="textSecondary">
-                                  {member.BusinessProfiles?.[0]?.business_type || t('noBusinessInfo')}
-                                </Typography>
+                                <Box display="flex" alignItems="center" mb={0.5}>
+                                  <BusinessCenter sx={{ fontSize: 14, mr: 0.5, color: theme.palette.text.secondary }} />
+                                  <Typography variant="body2" color="textSecondary">
+                                    {member.BusinessProfiles?.[0]?.company_name || t('noBusinessInfo')}
+                                  </Typography>
+                                </Box>
+                                <Box display="flex" alignItems="center" mb={1}>
+                                  <TrendingUp sx={{ fontSize: 14, mr: 0.5, color: theme.palette.text.secondary }} />
+                                  <Typography variant="body2" color="textSecondary">
+                                    {member.BusinessProfiles?.[0]?.business_type || t('noBusinessInfo')}
+                                  </Typography>
+                                </Box>
                               </>
                             );
                         }
                       })()}
 
-                      <Box display="flex" alignItems="center" mt={1}>
-                        <Rating
-                          name={`rating-${member.mid}`}
-                          value={memberRatings[member.mid]?.avgRating || 0}
-                          precision={0.1}
-                          readOnly
-                          size="small"
-                        />
-                        <Typography variant="body2" ml={1}>
-                          ({memberRatings[member.mid]?.totalReviews || 0})
-                        </Typography>
+                      <Divider sx={{ my: 1 }} />
+                      <Box display="flex" alignItems="center" justifyContent="space-between">
+                        <Box display="flex" alignItems="center">
+                          <Star sx={{ fontSize: 14, mr: 0.5, color: '#FFA726' }} />
+                          <Rating
+                            name={`rating-${member.mid}`}
+                            value={memberRatings[member.mid]?.avgRating || 0}
+                            precision={0.1}
+                            readOnly
+                            size="small"
+                          />
+                          <Typography variant="body2" ml={0.5} color="textSecondary">
+                            ({memberRatings[member.mid]?.totalReviews || 0})
+                          </Typography>
+                        </Box>
+                        {member.online && (
+                          <Chip 
+                            label={t('online')} 
+                            color="success" 
+                            size="small"
+                            sx={{ 
+                              fontWeight: '600',
+                              fontSize: '0.7rem',
+                              height: 20
+                            }}
+                          />
+                        )}
                       </Box>
                     </Box>
                   </Box>
-
-                  <Box textAlign="right">
-                    {member.online && (
-                      <Chip 
-                        label={t('online')} 
-                        color="success" 
-                        size="small" 
-                        sx={{ mb: 1 }} 
-                      />
-                    )}
-                    {loggedInMember?.status === 'Approved' && (
+                  {loggedInMember?.status === 'Approved' && (
+                    <Box display="flex" justifyContent="flex-end" mt={2}>
                       <Button
                         variant="contained"
+                        startIcon={<Visibility />}
+                        size="small"
                         sx={{ 
-                          mt: 1, 
-                          background: 'linear-gradient(to right, #137d13, #3ad13a)',
-                          borderRadius: 5,
-                          color: 'white'
+                          background: 'linear-gradient(135deg, #137d13, #3ad13a)',
+                          borderRadius: 2,
+                          color: 'white',
+                          fontWeight: '600',
+                          px: 2,
+                          py: 1,
+                          textTransform: 'none',
+                          boxShadow: '0 2px 8px rgba(19, 125, 19, 0.3)',
+                          '&:hover': {
+                            background: 'linear-gradient(135deg, #0f6b0f, #32c132)',
+                            transform: 'translateY(-1px)',
+                            boxShadow: '0 4px 12px rgba(19, 125, 19, 0.4)'
+                          },
+                          transition: 'all 0.3s ease'
                         }}
                         onClick={() =>
                           chipFilter === 'Business Type'
@@ -519,36 +783,50 @@ const HomePage = () => {
                       >
                         {t('view')}
                       </Button>
-                    )}
-                  </Box>
-                </Box>
-              </CardContent>
-            </Card>
+                    </Box>
+                  )}
+                </CardContent>
+              </Card>
+            </Fade>
           ))
         )}
 
         {filteredMembers.length > displayedMembers.length && (
-          <Button
-            fullWidth
-            variant="outlined"
-            sx={{ 
-              mt: 2, 
-              mb: 10,
-              borderRadius: 5, 
-              color: 'primary.main', 
-              borderColor: 'primary.main',
-              '&:hover': {
-                borderColor: 'primary.dark'
-              }
-            }}
-            onClick={handleLoadMore}
-          >
-            {t('Load More')} ({filteredMembers.length - displayedMembers.length} remaining)
-          </Button>
+          <Fade in timeout={500}>
+            <Button
+              fullWidth
+              variant="outlined"
+              sx={{ 
+                mt: 2, 
+                mb: 10,
+                borderRadius: 3,
+                py: 1.5,
+                color: theme.palette.primary.main, 
+                borderColor: theme.palette.primary.main,
+                backgroundColor: 'transparent',
+                fontSize: '0.95rem',
+                fontWeight: '600',
+                textTransform: 'none',
+                border: `2px solid ${theme.palette.primary.main}`,
+                '&:hover': {
+                  borderColor: theme.palette.primary.dark,
+                  backgroundColor: theme.palette.primary.main,
+                  color: 'white',
+                  transform: 'translateY(-1px)',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                },
+                transition: 'all 0.3s ease'
+              }}
+              onClick={handleLoadMore}
+            >
+              {t('Load More')} ({filteredMembers.length - displayedMembers.length} remaining)
+            </Button>
+          </Fade>
         )}
       </Box>
 
       <Footer />
+      
       <Snackbar 
         open={snackbar.open} 
         autoHideDuration={6000} 

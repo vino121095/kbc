@@ -250,20 +250,6 @@ const ReviewPage = () => {
           sx={{ mt: 1 }}
         />
 
-        {/* Tags */}
-        <Typography fontWeight="bold" mt={3}>{t('tags')} ({t('optional')})</Typography>
-        <Box mt={1} display="flex" gap={1} flexWrap="wrap">
-          {tags.map((tag, i) => (
-            <Chip 
-              key={i} 
-              label={tag} 
-              variant="outlined" 
-              color="success"
-              onDelete={() => setTags(tags.filter((_, index) => index !== i))}
-            />
-          ))}
-        </Box>
-
         {/* Submit */}
         <Button
           fullWidth
