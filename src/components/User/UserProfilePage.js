@@ -16,6 +16,7 @@ import PhotoCamera from '@mui/icons-material/PhotoCamera';
 import Footer from '../Footer';
 import { useCustomTheme } from '../../context/ThemeContext';
 import baseurl from '../Baseurl/baseurl';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 const UserProfilePage = () => {
   const navigate = useNavigate();
@@ -98,6 +99,15 @@ const UserProfilePage = () => {
           mb: 2
         }}
       >
+        <IconButton onClick={() => navigate(-1)} sx={{
+          color: 'white',
+          position: 'absolute',
+          top: { xs: 12, sm: 18 },
+          left: { xs: 8, sm: 24 },
+          '&:hover': { background: 'rgba(19, 125, 19, 0.1)' }
+        }}>
+          <ArrowBackIcon />
+        </IconButton>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexDirection: { xs: 'column', sm: 'row' }, gap: 2 }}>
           {/* Left: Avatar and Info */}
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>

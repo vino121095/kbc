@@ -21,9 +21,12 @@ import BaseUrl from '../Baseurl/baseurl';
 import { useCustomTheme } from '../../context/ThemeContext';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import MarkunreadIcon from '@mui/icons-material/Markunread';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { useNavigate } from 'react-router-dom';
 
 const NotificationsPage = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -194,8 +197,14 @@ const NotificationsPage = () => {
         p: 3,
         color: '#fff',
         borderBottomLeftRadius: 40,
-        borderBottomRightRadius: 40
+        borderBottomRightRadius: 40,
+        display: 'flex',
+        alignItems: 'center',
+        gap: 2
       }}>
+        <IconButton onClick={() => navigate(-1)} sx={{ color: 'white', mr: 1 }}>
+          <ArrowBackIcon />
+        </IconButton>
         <Typography variant="h6" fontWeight="bold">
           {t('notifications')}
         </Typography>
@@ -272,14 +281,14 @@ const NotificationsPage = () => {
               color="textSecondary" 
               mt={2}
             >
-              {t('noNotifications')}
+              {t('No Notifications')}
             </Typography>
             <Typography 
               variant="body2" 
               color="textSecondary" 
               mt={1}
             >
-              {t('noNotificationsDesc') || 'You have no notifications at this time'}
+              {/* {t('noNotificationsDesc') || 'You have no notifications at this time'} */}
             </Typography>
           </Box>
         ) : (

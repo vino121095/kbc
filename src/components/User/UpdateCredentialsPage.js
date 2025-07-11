@@ -243,7 +243,7 @@ const UpdateCredentialsPage = () => {
           <ArrowBack />
         </IconButton>
         <Typography variant="h6" fontWeight="bold" align="center">
-          {t('updateLoginCredentials')}
+          {t('Update Login Credentials')}
         </Typography>
       </Box>
 
@@ -264,7 +264,7 @@ const UpdateCredentialsPage = () => {
               color: theme.palette.text.primary
             }}
           >
-            {t('updateEmailPassword')}
+            {t('Update Email Password')}
           </Typography>
 
           <form onSubmit={handleSubmit}>
@@ -429,7 +429,7 @@ const UpdateCredentialsPage = () => {
 
         <Box mt={3} textAlign="center">
           <Typography variant="body2" color={theme.palette.text.secondary}>
-            {t('credentialsNote') || 'Note: Changing your email will update your login username. Changing your password will log you out of all devices.'}
+            {/* {t('credentialsNote') || 'Note: Changing your email will update your login username. Changing your password will log you out of all devices.'} */}
           </Typography>
         </Box>
       </Box>

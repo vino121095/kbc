@@ -683,12 +683,12 @@ const HomePage = () => {
                             return (
                               <>
                                 <Typography variant="h6" fontWeight="700" sx={{ mb: 0.5, textAlign: 'left' }}>
-                                  {member.BusinessProfiles?.[0]?.company_name || t('noBusinessInfo')}
+                                  {member.BusinessProfiles?.[0]?.company_name || t('No Business Info')}
                                 </Typography>
                                 <Box display="flex" alignItems="center" mb={0.5}>
                                   <BusinessCenter sx={{ fontSize: 14, mr: 0.5, color: theme.palette.text.secondary }} />
                                   <Typography variant="body2" color="textSecondary">
-                                    {member.BusinessProfiles?.[0]?.business_type || t('noBusinessInfo')}
+                                    {member.BusinessProfiles?.[0]?.business_type || t('No Business Info')}
                                   </Typography>
                                 </Box>
                                 <Box display="flex" alignItems="center" mb={1}>
@@ -709,13 +709,13 @@ const HomePage = () => {
                                 <Box display="flex" alignItems="center" mb={0.5}>
                                   <BusinessCenter sx={{ fontSize: 14, mr: 0.5, color: theme.palette.text.secondary }} />
                                   <Typography variant="body2" color="textSecondary">
-                                    {member.BusinessProfiles?.[0]?.company_name || t('noBusinessInfo')}
+                                    {member.BusinessProfiles?.[0]?.company_name || t('No Business Info')}
                                   </Typography>
                                 </Box>
                                 <Box display="flex" alignItems="center" mb={1}>
                                   <TrendingUp sx={{ fontSize: 14, mr: 0.5, color: theme.palette.text.secondary }} />
                                   <Typography variant="body2" color="textSecondary">
-                                    {member.BusinessProfiles?.[0]?.business_type || t('noBusinessInfo')}
+                                    {member.BusinessProfiles?.[0]?.business_type || t('No Business Info')}
                                   </Typography>
                                 </Box>
                               </>

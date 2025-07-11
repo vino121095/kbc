@@ -21,6 +21,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import baseurl from '../Baseurl/baseurl';
+import logo from '../../assets/image.png';
 
 const SignupPage = () => {
   const { t } = useTranslation();
@@ -347,8 +348,8 @@ const SignupPage = () => {
 
   return (
     <Box sx={{ maxWidth: 600, mx: 'auto', bgcolor: '#fff', p: 3, overflowY: 'auto' }}>
-      <Box sx={{ textAlign: 'center', bgcolor: 'green', py: 2, borderRadius: 1 }}>
-        <Typography color="white" variant="h6">LOGO</Typography>
+      <Box sx={{ textAlign: 'center'}}>
+        <img src={logo} alt="Logo" style={{ height: '100px', width: 'auto' }} />
       </Box>
 
       <Typography variant="h5" color="green" mt={4}>{t('welcome')}</Typography>
@@ -364,7 +365,7 @@ const SignupPage = () => {
       </Box>
 
       {/* Personal Information */}
-      <Typography fontWeight="bold" mt={2}>{t('personalinformation')}</Typography>
+      <Typography fontWeight="bold" mt={2}>{t('Personal Information')}</Typography>
 
       <TextField
         fullWidth
@@ -399,7 +400,7 @@ const SignupPage = () => {
         value={formData.email}
         onChange={handleChange}
         error={!!errors.email}
-        helperText={errors.email || t('emailHelper')}
+        helperText={errors.email}
         required
       />
 
@@ -412,7 +413,7 @@ const SignupPage = () => {
         value={formData.password}
         onChange={handleChange}
         error={!!errors.password}
-        helperText={errors.password || t('passwordHelper')}
+        helperText={errors.password}
         required
         InputProps={{
           endAdornment: (
@@ -753,7 +754,7 @@ const SignupPage = () => {
 
       {formData.business_profiles.map((profile, index) => (
         <Box key={index} sx={{ my: 2, p: 2, border: '1px solid #ccc', borderRadius: 1 }}>
-          <Typography variant="subtitle1">{t('Business Profile')} #{index + 1}</Typography>
+          <Typography variant="subtitle1">{t('Business Profile')} {index + 1}</Typography>
 
           <TextField
             fullWidth
@@ -1003,7 +1004,7 @@ const SignupPage = () => {
             name="children_names"
             value={formData.family_details.children_names}
             onChange={handleFamilyChange}
-            helperText={t('childrenNamesHelper')}
+            // helperText={t('childrenNamesHelper')}
           />
         </>
       )}
@@ -1019,7 +1020,7 @@ const SignupPage = () => {
       </Button>
 
       <Typography textAlign="center" mt={2}>
-        {t('alreadyHaveAccount')} <Link to="/login">{t('signin')}</Link>
+        {t('alreadyHaveAccount')} <Link to="/login" style={{ textDecoration: 'none', color: 'green' }}>{t('signin')}</Link>
       </Typography>
 
       <Snackbar

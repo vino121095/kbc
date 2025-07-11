@@ -75,6 +75,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Box, Typography, Button, Paper, Radio } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import logo from '../../assets/image.png';
 
 const LanguagePage = () => {
   const { t, i18n } = useTranslation();
@@ -95,12 +96,12 @@ const LanguagePage = () => {
 
   return (
     <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', pt: 5 }}>
-      <Box sx={{ height: 80, backgroundColor: 'green', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-        <Typography color="white" variant="h5">LOGO</Typography>
+      <Box sx={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+        <img src={logo} alt="Logo" style={{ height: '100px', width: 'auto' }} />
       </Box>
 
       <Typography variant="h5" color="green" mt={4}>{t('welcome')}</Typography>
-      <Typography mt={1}>{t('selectLanguage')}</Typography>
+      <Typography mt={1}>{t('Select Language')}</Typography>
 
       <Box mt={4} width="80%">
         {['en', 'ta'].map((lang) => (

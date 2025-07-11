@@ -3,6 +3,7 @@ import { Box, Typography, TextField, Button, Snackbar, Alert } from '@mui/materi
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import baseurl from '../Baseurl/baseurl';
+import logo from '../../assets/image.png';
 
 const LoginPage = () => {
   const { t } = useTranslation();
@@ -67,8 +68,8 @@ const LoginPage = () => {
 
   return (
     <Box sx={{ maxWidth: 400, mx: 'auto', bgcolor: '#fff', p: 3, height: '100vh' }}>
-      <Box sx={{ textAlign: 'center', bgcolor: 'green', py: 2, borderRadius: 1 }}>
-        <Typography color="white" variant="h6">LOGO</Typography>
+      <Box sx={{ textAlign: 'center'}}>
+        <img src={logo} alt="Logo" style={{ height: '100px', width: 'auto' }} />
       </Box>
 
       <Typography variant="h5" color="green" mt={4}>{t('signin')}</Typography>
@@ -121,7 +122,7 @@ const LoginPage = () => {
       </Button>
 
       <Typography textAlign="center" mt={2}>
-        {t('alreadyHaveAccount')} <Link to="/signup">{t('signup')}</Link>
+        {t('alreadyHaveAccount')} <Link to="/signup" style={{ textDecoration: 'none', color: 'green' }}>{t('signup')}</Link>
       </Typography>
 
       <Snackbar

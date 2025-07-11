@@ -288,7 +288,7 @@ const PersonalDetailsPage = () => {
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
         {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
 
-        <Typography fontWeight="bold" mt={2}>{t('personalinformation')}</Typography>
+        <Typography fontWeight="bold" mt={2}>{t('Personal Information')}</Typography>
 
         <TextField
           fullWidth
