@@ -214,7 +214,7 @@ const PersonalDetailsPage = () => {
         best_time_to_contact: formData.best_time_to_contact
       };
 
-      // Append family details
+      // Append family details (do NOT include family_address)
       const familyDetails = {
         father_name: formData.father_name,
         father_contact: formData.father_contact,
@@ -223,15 +223,19 @@ const PersonalDetailsPage = () => {
         spouse_name: formData.spouse_name,
         spouse_contact: formData.spouse_contact,
         number_of_children: formData.number_of_children,
-        children_names: formData.children_names,
-        address: formData.family_address
+        children_names: formData.children_names
+        // family_address is intentionally omitted
       };
 
-      // Append personal details as JSON
-      formDataToSend.append('personal_details', JSON.stringify(personalDetails));
+      // Append personal details as individual fields
+      Object.entries(personalDetails).forEach(([key, value]) => {
+        formDataToSend.append(key, value);
+      });
 
-      // Append family details as JSON
-      formDataToSend.append('family_details', JSON.stringify(familyDetails));
+      // Append family details as individual fields (no family_address)
+      Object.entries(familyDetails).forEach(([key, value]) => {
+        formDataToSend.append(key, value);
+      });
 
       const response = await fetch(`${baseurl}/api/member/update/${memberId}`, {
         method: 'PUT',

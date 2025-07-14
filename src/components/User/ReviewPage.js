@@ -119,11 +119,12 @@ const ReviewPage = () => {
       console.log('Business Profile:', businessProfile);
       
       // Ensure we have the correct IDs
-      const memberId = memberData.mid; // Use mid from member data
+      const loggedInMember = JSON.parse(localStorage.getItem('memberData'));
+      const memberId = loggedInMember?.mid; // Use logged-in user's ID
       const businessId = businessProfile.id; // Use id from business profile
       
       if (!memberId) {
-        throw new Error('Member ID (mid) not found in member data');
+        throw new Error('Logged-in Member ID (mid) not found in localStorage');
       }
       
       if (!businessId) {
@@ -132,8 +133,8 @@ const ReviewPage = () => {
 
       // Create the payload with only required fields that backend expects
       const requestPayload = {
-        member_id: memberId,
-        business_id: businessId,
+        member_id: memberId, // logged-in user
+        business_id: businessId, // profile's business
         rating: parseInt(value),
         message: review.trim()
       };
