@@ -190,6 +190,10 @@ const Member = db.define('Member', {
             isIn: [['Pending', 'Approved', 'Rejected']]
         }
     },
+    rejection_reason: {
+        type: DataTypes.TEXT,
+        allowNull: true, // only required if status = Rejected
+    },
     otp: {
         type: DataTypes.STRING,
         allowNull: true,

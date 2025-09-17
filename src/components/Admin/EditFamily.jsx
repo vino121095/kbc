@@ -61,14 +61,14 @@ const EditFamily = () => {
                 }
 
                 setMember(data.data);
-                
+
                 // Initialize family data if exists
                 if (data.data.MemberFamily) {
                     // Convert children names from JSON string to array
-                    const childrenArray = data.data.MemberFamily.children_names 
-                        ? JSON.parse(data.data.MemberFamily.children_names) 
+                    const childrenArray = data.data.MemberFamily.children_names
+                        ? JSON.parse(data.data.MemberFamily.children_names)
                         : [];
-                    
+
                     setFamily({
                         father_name: data.data.MemberFamily.father_name || '',
                         father_contact: data.data.MemberFamily.father_contact || '',
@@ -104,16 +104,34 @@ const EditFamily = () => {
         }));
     };
 
+    const handleMaritalStatusChange = (e) => {
+        const maritalStatus = e.target.value;
+        setMember(prev => ({
+            ...prev,
+            marital_status: maritalStatus
+        }));
+
+        // If marital status changes to single or disabled, clear children details
+        if (maritalStatus === 'single' || maritalStatus === 'disabled') {
+            setFamily(prev => ({
+                ...prev,
+                children_details: '',
+                number_of_children: 0,
+                children_names: []
+            }));
+        }
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
             setLoading(true);
-            
+
             // Convert children details to array
-            const childrenArray = family.children_details 
+            const childrenArray = family.children_details
                 ? family.children_details.split(',').map(name => name.trim()).filter(name => name)
                 : [];
-            
+
             // Prepare payload matching backend expectations
             const payload = {
                 member_id: parseInt(id),
@@ -144,7 +162,7 @@ const EditFamily = () => {
             setSnackbarMessage('Family details updated successfully!');
             setSnackbarSeverity('success');
             setSnackbarOpen(true);
-            
+
             // Redirect after successful update
             setTimeout(() => {
                 navigate('/admin/FamilyInformation');
@@ -164,6 +182,9 @@ const EditFamily = () => {
         setSnackbarOpen(false);
     };
 
+    // Determine if children details should be disabled
+    const isChildDetailsDisabled = member?.marital_status === 'single' || member?.marital_status === 'disabled';
+
     if (loading && !member) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
@@ -181,9 +202,9 @@ const EditFamily = () => {
                 <Typography variant="body1" gutterBottom>
                     {error}
                 </Typography>
-                <Button 
-                    variant="contained" 
-                    color="primary" 
+                <Button
+                    variant="contained"
+                    color="primary"
                     startIcon={<ArrowBack />}
                     onClick={() => navigate('/admin/FamilyInformation')}
                     sx={{ mt: 2 }}
@@ -196,8 +217,8 @@ const EditFamily = () => {
 
     return (
         <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
-            <Button 
-                variant="outlined" 
+            <Button
+                variant="outlined"
                 startIcon={<ArrowBack />}
                 onClick={() => navigate('/admin/FamilyInformation')}
                 sx={{ mb: 3 }}
@@ -244,7 +265,7 @@ const EditFamily = () => {
                                     variant="outlined"
                                 />
                             </Grid>
-                            
+
                             <Grid item xs={12} md={6}>
                                 <TextField
                                     fullWidth
@@ -266,7 +287,7 @@ const EditFamily = () => {
                                     variant="outlined"
                                 />
                             </Grid>
-                            
+
                             <Grid item xs={12} md={6}>
                                 <TextField
                                     fullWidth
@@ -286,9 +307,10 @@ const EditFamily = () => {
                                     value={family.spouse_name}
                                     onChange={handleChange}
                                     variant="outlined"
+                                    disabled={isChildDetailsDisabled}
                                 />
                             </Grid>
-                            
+
                             <Grid item xs={12} md={6}>
                                 <TextField
                                     fullWidth
@@ -297,26 +319,20 @@ const EditFamily = () => {
                                     value={family.spouse_contact}
                                     onChange={handleChange}
                                     variant="outlined"
+                                    disabled={isChildDetailsDisabled}
                                 />
                             </Grid>
 
                             <Grid item xs={12} md={6}>
-                                <FormControl fullWidth>
-                                    <InputLabel>Marital Status</InputLabel>
-                                    <Select
-                                        value={member?.marital_status || ''}
-                                        label="Marital Status"
-                                        onChange={(e) => setMember(prev => ({
-                                            ...prev,
-                                            marital_status: e.target.value
-                                        }))}
-                                    >
-                                        <MenuItem value="single">Single</MenuItem>
-                                        <MenuItem value="married">Married</MenuItem>
-                                        <MenuItem value="divorced">Divorced</MenuItem>
-                                        <MenuItem value="widowed">Widowed</MenuItem>
-                                    </Select>
-                                </FormControl>
+                                <TextField
+                                    fullWidth
+                                    label="Marital Status"
+                                    name="marital_status"
+                                    value={member?.marital_status || ''}
+                                    onChange={handleChange}
+                                    variant="outlined"
+                                    disabled
+                                />
                             </Grid>
 
                             <Grid item xs={12}>
@@ -341,7 +357,11 @@ const EditFamily = () => {
                                     onChange={handleChange}
                                     variant="outlined"
                                     placeholder="Enter names separated by commas"
-                                    helperText="e.g., John, Mary, David"
+                                    helperText={isChildDetailsDisabled ?
+                                        "Children details not applicable for single or disabled members" :
+                                        "e.g., John, Mary, David"
+                                    }
+                                    disabled={isChildDetailsDisabled}
                                 />
                             </Grid>
 
@@ -349,15 +369,15 @@ const EditFamily = () => {
                             <Grid item xs={12} sx={{ mt: 2 }}>
                                 <Button
                                     type="submit"
-                                    variant="contained" 
+                                    variant="contained"
                                     startIcon={<Save />}
                                     disabled={loading}
                                     sx={{
-                            bgcolor: '#4CAF50',
-                            minWidth: 120,
-                            '&:hover': { bgcolor: '#45a049' },
-                             py: 1.5, px: 4 
-                        }}
+                                        bgcolor: '#4CAF50',
+                                        minWidth: 120,
+                                        '&:hover': { bgcolor: '#45a049' },
+                                        py: 1.5, px: 4
+                                    }}
                                 >
                                     {loading ? <CircularProgress size={24} /> : 'Save Changes'}
                                 </Button>
@@ -374,8 +394,8 @@ const EditFamily = () => {
                 onClose={handleSnackbarClose}
                 anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
             >
-                <Alert 
-                    onClose={handleSnackbarClose} 
+                <Alert
+                    onClose={handleSnackbarClose}
                     severity={snackbarSeverity}
                     sx={{ width: '100%' }}
                 >

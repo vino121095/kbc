@@ -4,7 +4,7 @@ import Header from './Header';
 import Footer from './Footer';
 import MobileFooter from './MobileFooter';
 import baseurl from '../Baseurl/baseurl';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const BusinessDirectory = () => {
   const [sortBy, setSortBy] = useState('Relevance');
@@ -350,6 +350,7 @@ const BusinessDirectory = () => {
     // Grid view (original design)
     return (
       <div className="bg-white rounded-3xl shadow-md hover:shadow-lg transition duration-300 overflow-hidden">
+        <Link to={`/details/${business.id}`}>
         <div className="relative">
           <div
             className="h-24 sm:h-32 w-full bg-green-600 flex items-center justify-center bg-cover bg-no-repeat bg-center"
@@ -403,6 +404,7 @@ const BusinessDirectory = () => {
             </button>
           </div>
         </div>
+        </Link>
       </div>
     );
   };

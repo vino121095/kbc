@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
-import { Eye, EyeOff, Mail, Phone, Lock, User } from 'lucide-react';
+import { Eye, EyeOff, Phone, Lock } from 'lucide-react';
 import baseurl from '../Baseurl/baseurl';
 import logo from '../../assets/image.png';
 
@@ -31,7 +31,7 @@ const LoginPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const [identifier, setIdentifier] = useState('');
+  const [contactNumber, setContactNumber] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -42,18 +42,18 @@ const LoginPage = () => {
   const handleLogin = async () => {
     setError('');
 
-    if (!identifier || !password) {
-      setError(t('formErrors') || 'Email/Phone and password are required');
+    if (!contactNumber || !password) {
+      setError(t('formErrors') || 'Contact number and password are required');
       return;
     }
 
-    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
     const loginPayload = {
+      contact_no: contactNumber,
       password,
-      ...(isEmail ? { email: identifier } : { contact_no: identifier }),
     };
 
     try {
+      setIsLoading(true);
       const response = await fetch(`${baseurl}/api/member/login`, {
         method: 'POST',
         headers: {
@@ -95,6 +95,8 @@ const LoginPage = () => {
         message: err.message,
         severity: 'error',
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -106,7 +108,11 @@ const LoginPage = () => {
     setShowPassword(!showPassword);
   };
 
-  const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identifier);
+  const handleContactNumberChange = (e) => {
+    // Only allow numbers
+    const value = e.target.value.replace(/\D/g, '');
+    setContactNumber(value);
+  };
 
   const CompanyHeader = () => (
     <div className="text-center mb-8 animate-in fade-in duration-700">
@@ -148,12 +154,13 @@ const LoginPage = () => {
 
             <div className="space-y-4">
               <InputField 
-                label="Email or Contact Number" 
-                placeholder="Enter your email or contact number" 
+                label="Contact Number" 
+                placeholder="Enter your contact number" 
                 required 
-                value={identifier}
-                onChange={(e) => setIdentifier(e.target.value)}
-                icon={isEmail ? <Mail className="w-5 h-5" /> : <Phone className="w-5 h-5" />}
+                type="tel"
+                value={contactNumber}
+                onChange={handleContactNumberChange}
+                icon={<Phone className="w-5 h-5" />}
               />
 
               <InputField 

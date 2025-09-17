@@ -83,7 +83,8 @@ const EditMember = () => {
     // New fields
     status: 'Pending',
     access_level: 'Basic',
-    profile_image: ''
+    profile_image: '',
+    rejection_reason: ''
   });
 
   useEffect(() => {
@@ -142,7 +143,8 @@ const EditMember = () => {
             // New fields
             status: memberData.status || 'Pending',
             access_level: memberData.access_level || 'Basic',
-            profile_image: memberData.profile_image || ''
+            profile_image: memberData.profile_image || '',
+            rejection_reason: memberData.rejection_reason || ''
           };
 
           // Initialize custom values if existing value is not in predefined options
@@ -320,6 +322,11 @@ const EditMember = () => {
   };
 
   const renderField = (fieldName, config) => {
+    // Special handling for rejection_reason - only show when status is Rejected
+    if (fieldName === 'rejection_reason' && formData.status !== 'Rejected') {
+      return null;
+    }
+
     if (config.type === 'select') {
       // Special handling for gender, kootam, and kovil with "Others" option
       if (['gender', 'kootam', 'kovil'].includes(fieldName)) {
@@ -454,6 +461,13 @@ const EditMember = () => {
         { value: 'Advanced', label: t('Advanced') }
       ],
       required: true
+    },
+    rejection_reason: {
+      label: t('Rejection Reason'),
+      type: 'text',
+      multiline: true,
+      rows: 3,
+      required: formData.status === 'Rejected'
     }
   };
 
@@ -592,7 +606,7 @@ const EditMember = () => {
             <CardContent>
               <Grid container spacing={2}>
                 {Object.entries(accessControlConfig).map(([fieldName, config]) => (
-                  <Grid item xs={12} sm={6} key={fieldName}>
+                  <Grid item xs={12} sm={fieldName === 'rejection_reason' ? 12 : 6} key={fieldName}>
                     {renderField(fieldName, config)}
                   </Grid>
                 ))}

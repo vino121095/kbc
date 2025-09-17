@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -61,6 +61,7 @@ import * as XLSX from 'xlsx';
 
 const MemberManagement = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [activeTab, setActiveTab] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [members, setMembers] = useState([]);
@@ -71,12 +72,30 @@ const MemberManagement = () => {
     pendingApplications: 0,
     activeMembers: 0
   });
+  const [statusFilter, setStatusFilter] = useState('All');
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState(null);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const isSmall = useMediaQuery(theme.breakpoints.down('sm'));
+
+  // Check URL parameters on component mount
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const tab = urlParams.get('tab');
+    
+    if (tab === 'pending') {
+      setActiveTab(2); // Pending tab index
+      setStatusFilter('Pending');
+    } else if (tab === 'approved') {
+      setActiveTab(1); // Approved tab index
+      setStatusFilter('Approved');
+    } else if (tab === 'rejected') {
+      setActiveTab(3); // Rejected tab index
+      setStatusFilter('Rejected');
+    }
+  }, [location.search]);
 
   // Fetch members data
   useEffect(() => {
@@ -143,15 +162,22 @@ const MemberManagement = () => {
     }
   ];
 
-  // Filter members based on search term
-  const filteredMembers = members.filter(member =>
-    member.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    member.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    member.email?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter members based on search term and status
+  const filteredMembers = members.filter(member => {
+    const matchesSearch = member.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      member.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      member.email?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesStatus = statusFilter === 'All' || member.status === statusFilter;
+    
+    return matchesSearch && matchesStatus;
+  });
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
+    // Update status filter based on tab selection
+    const statusMap = ['All', 'Approved', 'Pending', 'Rejected'];
+    setStatusFilter(statusMap[newValue]);
   };
 
   const handleAddMember = () => {
@@ -401,9 +427,10 @@ const MemberManagement = () => {
                 }
               }}
             >
-              <Tab label="Members" />
-              {/* <Tab label="Applications" />
-              <Tab label="Access Levels" /> */}
+              <Tab label="All" />
+              <Tab label="Approved" />
+              <Tab label="Pending" />
+              <Tab label="Rejected" />
             </Tabs>
           </Box>
 
@@ -720,53 +747,71 @@ const MemberManagement = () => {
                   </Box>
                 </Grid>
 
-                {/* Right Panel - Business / Family Info */}
+                {/* Right Panel - Business / Family Info or Rejection Reason */}
                 <Grid item xs={12} md={6}>
                   <Box sx={{ bgcolor: 'white', p: 2, borderRadius: 2, boxShadow: 1 }}>
-                    <Typography variant="subtitle1" fontWeight={600} mb={2}>
-                      {selectedMember.business_profiles?.length > 0 ? '🏢 Business Info' : '👨‍👩‍👧 Family Info'}
-                    </Typography>
-                    <List dense>
-                      {selectedMember.business_profiles?.length > 0 ? (
-                        <>
+                    {selectedMember.status === 'Rejected' ? (
+                      <>
+                        <Typography variant="subtitle1" fontWeight={600} mb={2}>
+                          ❌ Rejection Details
+                        </Typography>
+                        <List dense>
                           <ListItem>
-                            <ListItemIcon><Business color="action" /></ListItemIcon>
-                            <ListItemText primary="Company" secondary={selectedMember.business_profiles[0]?.company_name || 'Not provided'} />
+                            <ListItemIcon><Warning color="error" /></ListItemIcon>
+                            <ListItemText 
+                              primary="Rejection Reason" 
+                              secondary={selectedMember.rejection_reason || 'No reason provided'} 
+                            />
                           </ListItem>
-                          <ListItem>
-                            <ListItemIcon><Work color="action" /></ListItemIcon>
-                            <ListItemText primary="Role" secondary={selectedMember.business_profiles[0]?.role || 'Not provided'} />
-                          </ListItem>
-                        </>
-                      ) : (
-                        <ListItem>
-                          <List dense>
+                        </List>
+                      </>
+                    ) : (
+                      <>
+                        <Typography variant="subtitle1" fontWeight={600} mb={2}>
+                          {selectedMember.business_profiles?.length > 0 ? '🏢 Business Info' : '👨‍👩‍👧 Family Info'}
+                        </Typography>
+                        <List dense>
+                          {selectedMember.business_profiles?.length > 0 ? (
+                            <>
+                              <ListItem>
+                                <ListItemIcon><Business color="action" /></ListItemIcon>
+                                <ListItemText primary="Company" secondary={selectedMember.business_profiles[0]?.company_name || 'Not provided'} />
+                              </ListItem>
+                              <ListItem>
+                                <ListItemIcon><Work color="action" /></ListItemIcon>
+                                <ListItemText primary="Role" secondary={selectedMember.business_profiles[0]?.role || 'Not provided'} />
+                              </ListItem>
+                            </>
+                          ) : (
                             <ListItem>
-                              <ListItemIcon><FamilyRestroom color="action" /></ListItemIcon>
-                              <ListItemText
-                                primary="Father's Name"
-                                secondary={selectedMember.MemberFamily?.father_name || 'Not provided'}
-                              />
+                              <List dense>
+                                <ListItem>
+                                  <ListItemIcon><FamilyRestroom color="action" /></ListItemIcon>
+                                  <ListItemText
+                                    primary="Father's Name"
+                                    secondary={selectedMember.MemberFamily?.father_name || 'Not provided'}
+                                  />
+                                </ListItem>
+                                <ListItem>
+                                  <ListItemIcon><FamilyRestroom color="action" /></ListItemIcon>
+                                  <ListItemText
+                                    primary="Mother's Name"
+                                    secondary={selectedMember.MemberFamily?.mother_name || 'Not provided'}
+                                  />
+                                </ListItem>
+                                <ListItem>
+                                  <ListItemIcon><FamilyRestroom color="action" /></ListItemIcon>
+                                  <ListItemText
+                                    primary="Spouse Name"
+                                    secondary={selectedMember.MemberFamily?.spouse_name || 'Not provided'}
+                                  />
+                                </ListItem>
+                              </List>
                             </ListItem>
-                            <ListItem>
-                              <ListItemIcon><FamilyRestroom color="action" /></ListItemIcon>
-                              <ListItemText
-                                primary="Mother's Name"
-                                secondary={selectedMember.MemberFamily?.mother_name || 'Not provided'}
-                              />
-                            </ListItem>
-                            <ListItem>
-                              <ListItemIcon><FamilyRestroom color="action" /></ListItemIcon>
-                              <ListItemText
-                                primary="Spouse Name"
-                                secondary={selectedMember.MemberFamily?.spouse_name || 'Not provided'}
-                              />
-                            </ListItem>
-                          </List>
-
-                        </ListItem>
-                      )}
-                    </List>
+                          )}
+                        </List>
+                      </>
+                    )}
                   </Box>
                 </Grid>
               </Grid>

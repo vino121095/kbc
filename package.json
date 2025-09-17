@@ -26,6 +26,7 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-dropzone": "^14.3.8",
+    "react-ga": "^3.3.1",
     "react-i18next": "^15.5.3",
     "react-image-crop": "^11.0.10",
     "react-router-dom": "^7.6.2",
@@ -38,7 +39,7 @@
   "scripts": {
     "start": "concurrently \"npm run server\" \"npm run client\"",
     "server": "node server.js",
-    "client": "cross-env PORT=3001 react-scripts start",
+    "client": "cross-env PORT=3000 react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

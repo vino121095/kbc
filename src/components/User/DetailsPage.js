@@ -17,44 +17,84 @@ const BusinessListing = () => {
   const isMounted = useRef(true);
   const currentId = useRef(null);
   const navigate = useNavigate();
-  
+  const [categories, setCategories] = useState([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setCategoriesLoading(true);
+        const response = await fetch(`${baseurl}/api/category/all`, {
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          throw new Error(`Failed to fetch categories: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+
+        if (isMounted.current && data.success) {
+          setCategories(data.data);
+        }
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+        if (isMounted.current) {
+          setCategories([]);
+        }
+      } finally {
+        if (isMounted.current) {
+          setCategoriesLoading(false);
+        }
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  const getCategoryName = (categoryId) => {
+    if (!categoryId || categoriesLoading) return 'N/A';
+    const category = categories.find(cat => cat.cid === parseInt(categoryId));
+    return category ? category.category_name : 'Not specified';
+  };
+
   useEffect(() => {
     return () => {
       isMounted.current = false;
     };
   }, []);
-  
+
   useEffect(() => {
     // Skip if id is undefined or if it's the same as the last fetched id
     if (!id || (currentId.current !== null && currentId.current === id)) {
       return;
     }
-    
+
     // Update the currentId ref
     currentId.current = id;
-    
+
     const fetchBusinessProfile = async () => {
       try {
         setLoading(true);
         setError(null);
         console.log("Fetching business profile for ID:", id);
-        
+
         const apiUrl = `${baseurl}/api/business-profile/${id}`;
         console.log("Fetching from URL:", apiUrl);
-        
+
         const response = await fetch(apiUrl, {
           credentials: 'include'
         });
-        
+
         console.log("Response status:", response.status);
-        
+
         if (!response.ok) {
           throw new Error(`Failed to fetch business profile: ${response.status} ${response.statusText}`);
         }
-        
+
         const data = await response.json();
         console.log("API response data:", data);
-        
+
         if (isMounted.current) {
           // Fixed: Check for the correct data structure - data.data is a single object, not an array
           if (data && data.success && data.data && typeof data.data === 'object') {
@@ -82,35 +122,35 @@ const BusinessListing = () => {
         }
       }
     };
-    
+
     fetchBusinessProfile();
   }, [id]);
 
   // Fetch ratings for the business
   useEffect(() => {
     if (!id) return;
-    
+
     const fetchRatings = async () => {
       try {
         setRatingsLoading(true);
         console.log("Fetching ratings for business ID:", id);
-        
+
         const ratingsUrl = `${baseurl}/api/ratings/${id}`;
         console.log("Fetching ratings from URL:", ratingsUrl);
-        
+
         const response = await fetch(ratingsUrl, {
           credentials: 'include'
         });
-        
+
         console.log("Ratings response status:", response.status);
-        
+
         if (!response.ok) {
           throw new Error(`Failed to fetch ratings: ${response.status} ${response.statusText}`);
         }
-        
+
         const ratingsData = await response.json();
         console.log("Ratings API response data:", ratingsData);
-        
+
         if (isMounted.current) {
           if (ratingsData && ratingsData.data && Array.isArray(ratingsData.data)) {
             setRatings(ratingsData.data);
@@ -131,22 +171,22 @@ const BusinessListing = () => {
         }
       }
     };
-    
+
     fetchRatings();
   }, [id]);
-  
+
   // Calculate average rating
-  const averageRating = ratings.length > 0 
-    ? ratings.reduce((sum, rating) => sum + rating.rating, 0) / ratings.length 
+  const averageRating = ratings.length > 0
+    ? ratings.reduce((sum, rating) => sum + rating.rating, 0) / ratings.length
     : 0;
-  
+
   // Calculate rating distribution
   const ratingDistribution = [5, 4, 3, 2, 1].map(rating => {
     const count = ratings.filter(r => r.rating === rating).length;
     const percentage = ratings.length > 0 ? (count / ratings.length) * 100 : 0;
     return { rating, count, percentage };
   });
-  
+
   const StarRating = ({ rating, size = "w-4 h-4" }) => {
     return (
       <div className="flex">
@@ -159,10 +199,10 @@ const BusinessListing = () => {
       </div>
     );
   };
-  
+
   // Debugging information
   console.log("Current state:", { loading, error, businessProfile, id, ratings, averageRating });
-  
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -174,7 +214,7 @@ const BusinessListing = () => {
       </div>
     );
   }
-  
+
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -182,8 +222,8 @@ const BusinessListing = () => {
           <div className="text-red-500 text-5xl mb-4">⚠️</div>
           <h2 className="text-xl font-semibold text-gray-800 mb-2">Error Loading Data</h2>
           <p className="text-gray-600">{error}</p>
-          <button 
-            onClick={() => window.location.reload()} 
+          <button
+            onClick={() => window.location.reload()}
             className="mt-4 px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
           >
             Try Again
@@ -192,7 +232,7 @@ const BusinessListing = () => {
       </div>
     );
   }
-  
+
   if (!businessProfile) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -205,26 +245,26 @@ const BusinessListing = () => {
       </div>
     );
   }
-  
+
   // Extract member information from the business profile
   const member = businessProfile.Member;
   const memberName = member ? `${member.first_name || ''} ${member.last_name || ''}`.trim() : 'Unknown Member';
   const memberFamily = member?.MemberFamily || null;
-  
+
   // Get profile image URL
   const profileImageUrl = businessProfile?.business_profile_image
-    ? businessProfile.business_profile_image.startsWith('https') 
+    ? businessProfile.business_profile_image.startsWith('https')
       ? businessProfile.business_profile_image
       : `${baseurl}/${businessProfile.business_profile_image}`
     : '';
-    
+
   // Get media gallery URL
   const mediaGalleryUrl = businessProfile?.media_gallery
     ? businessProfile.media_gallery.startsWith('https')
       ? businessProfile.media_gallery
       : `${baseurl}/${businessProfile.media_gallery}`
     : '';
-    
+
   // Get social media links
   const socialLinks = {
     website: businessProfile?.website || '',
@@ -233,7 +273,7 @@ const BusinessListing = () => {
     linkedin: businessProfile?.linkedin_link || '',
     google: businessProfile?.google_link || ''
   };
-  
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -243,11 +283,11 @@ const BusinessListing = () => {
         <div className="bg-green-500 text-white rounded-t-lg">
           <div className="relative h-48 sm:h-64 md:h-72 lg:h-80">
             {/* Background image from media gallery or fallback */}
-            <div 
+            <div
               className="absolute inset-0 bg-cover bg-center"
               style={{
-                backgroundImage: mediaGalleryUrl 
-                  ? `url(${mediaGalleryUrl})` 
+                backgroundImage: mediaGalleryUrl
+                  ? `url(${mediaGalleryUrl})`
                   : "url('/fallback.png')"
               }}
             ></div>
@@ -257,10 +297,10 @@ const BusinessListing = () => {
                 <div className="relative flex-shrink-0">
                   <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center">
                     {profileImageUrl ? (
-                      <img 
-                        src={profileImageUrl} 
-                        alt={businessProfile.company_name} 
-                        className="w-12 h-12 object-cover rounded-full" 
+                      <img
+                        src={profileImageUrl}
+                        alt={businessProfile.company_name}
+                        className="w-12 h-12 object-cover rounded-full"
                       />
                     ) : (
                       <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -388,7 +428,7 @@ const BusinessListing = () => {
                 </div>
                 <div>
                   <span className="font-semibold text-gray-800 inline-flex items-center gap-2 align-middle"><Tag className="w-4 h-4 text-green-600" /> Category:</span>
-                  <p className="text-gray-600 mt-1">{businessProfile.category_id || 'Not specified'}</p>
+                  <p className="text-gray-600 mt-1">{getCategoryName(businessProfile.category_id)}</p>
                 </div>
                 <div>
                   <span className="font-semibold text-gray-800 flex items-center gap-1">
@@ -440,24 +480,24 @@ const BusinessListing = () => {
             <h3 className="font-semibold mb-4 text-sm">Business Images</h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
               <div className="aspect-video bg-gray-200 rounded overflow-hidden">
-                <img 
-                  src={profileImageUrl} 
-                  alt="Business Profile" 
+                <img
+                  src={profileImageUrl}
+                  alt="Business Profile"
                   className="w-full h-full object-cover"
                 />
               </div>
               {mediaGalleryUrl && (
                 <div className="aspect-video bg-gray-200 rounded overflow-hidden">
                   {businessProfile.media_gallery_type === 'video' ? (
-                    <video 
-                      src={mediaGalleryUrl} 
-                      controls 
+                    <video
+                      src={mediaGalleryUrl}
+                      controls
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <img 
-                      src={mediaGalleryUrl} 
-                      alt="Business Gallery" 
+                    <img
+                      src={mediaGalleryUrl}
+                      alt="Business Gallery"
                       className="w-full h-full object-cover"
                     />
                   )}
@@ -553,7 +593,7 @@ const BusinessListing = () => {
         {/* Customer Reviews Card */}
         <div className="bg-white rounded-xl shadow-sm p-6 sm:p-8 mb-6">
           <h3 className="text-xl font-semibold mb-6 text-left">Customer Reviews</h3>
-          
+
           {ratingsLoading ? (
             <div className="text-center py-8">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mx-auto"></div>
@@ -569,15 +609,15 @@ const BusinessListing = () => {
                 const ratedBy = review.ratedBy || {};
                 const initials = `${ratedBy.first_name?.charAt(0) || ''}${ratedBy.last_name?.charAt(0) || ''}`;
                 const bgColor = ["bg-green-500", "bg-blue-500", "bg-purple-500", "bg-yellow-500", "bg-pink-500"][Math.floor(Math.random() * 5)];
-                
+
                 return (
                   <div key={review.rid} className="rounded-xl border border-gray-100 shadow-sm p-5 sm:p-6">
                     <div className="flex items-start gap-4">
                       <div className={`w-12 h-12 ${bgColor} rounded-full flex items-center justify-center text-white font-semibold`}>
                         {ratedBy.profile_image ? (
-                          <img 
-                            src={ratedBy.profile_image.startsWith('https') 
-                              ? ratedBy.profile_image 
+                          <img
+                            src={ratedBy.profile_image.startsWith('https')
+                              ? ratedBy.profile_image
                               : `${baseurl}/${ratedBy.profile_image}`}
                             alt={ratedBy.first_name}
                             className="w-12 h-12 object-cover rounded-full"
@@ -604,14 +644,14 @@ const BusinessListing = () => {
               })}
             </div>
           )}
-          
+
           <div className="mt-8 text-center space-y-3">
             <button className="inline-flex items-center justify-center px-6 py-2 border border-green-500 text-green-600 rounded-full text-sm hover:bg-green-50 font-medium">
               View All {ratings.length} Reviews
             </button>
             <div>
               <button className="inline-flex items-center justify-center px-6 py-2 bg-green-500 text-white rounded-full text-sm hover:bg-green-600 font-medium"
-                 onClick={() => navigate(`/review/${businessProfile.id}`)}
+                onClick={() => navigate(`/review/${businessProfile.id}`)}
               >
                 Write a Review
               </button>

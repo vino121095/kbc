@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Bell, Menu, X, User } from 'lucide-react';
+import baseurl from '../Baseurl/baseurl';
 
 const Header = () => {
   const [showProfileDropdown, setShowProfileDropdown] = useState(false);
@@ -95,9 +96,18 @@ const Header = () => {
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={toggleProfileDropdown}
-                className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center hover:bg-gray-400 transition-colors"
+                aria-label="Open profile menu"
+                className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center hover:bg-gray-400 transition-colors overflow-hidden"
               >
-                <User className="w-4 h-4 text-gray-600" />
+                {memberData?.profile_image ? (
+                  <img
+                    src={`${baseurl}/${memberData.profile_image}`}
+                    alt="Profile"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <User className="w-4 h-4 text-gray-600" />
+                )}
               </button>
 
               {showProfileDropdown && (
@@ -168,8 +178,8 @@ const Header = () => {
                 to={item.href}
                 onClick={() => setShowMobileMenu(false)}
                 className={`block px-2 py-2 rounded-md text-sm font-medium transition-colors ${location.pathname === item.href
-                    ? 'text-green-700 bg-green-50'
-                    : 'text-gray-700 hover:bg-gray-50'
+                  ? 'text-green-700 bg-green-50'
+                  : 'text-gray-700 hover:bg-gray-50'
                   }`}
               >
                 {item.name}

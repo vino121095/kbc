@@ -206,7 +206,7 @@ const ProfilePage = () => {
   const fetchFamilyDetails = async () => {
     try {
       // First, try the new endpoint that returns all members
-      const response = await fetch(`http://localhost:8001/api/member/all`, {
+      const response = await fetch(`${baseurl}/api/member/all`, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         }
@@ -601,7 +601,7 @@ const ProfilePage = () => {
           address: familyData.familyAddress
         };
         
-        const response = await fetch(`http://localhost:8001/api/family-details/update/${memberId}`, {
+        const response = await fetch(`${baseurl}/api/family-details/update/${memberId}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

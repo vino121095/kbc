@@ -479,8 +479,16 @@ const updateMember = async (req, res) => {
             instagram, twitter, youtube, kootam, kovil, best_time_to_contact,
             referral_name, referral_code,
             status = member.status,
-            access_level = member.access_level,
+            access_level = member.access_level, rejection_reason
         } = req.body;
+
+        // Ensure rejection reason only if status = Rejected
+        if (status === 'Rejected' && !rejection_reason) {
+            return res.status(400).json({
+                success: false,
+                msg: 'Rejection reason is required when status is Rejected',
+            });
+        }
 
         if (Array.isArray(email)) email = email[0];
 
@@ -497,7 +505,7 @@ const updateMember = async (req, res) => {
             secondary_email, emergency_contact, emergency_phone,
             personal_website, linkedin_profile, facebook,
             instagram, twitter, youtube, kootam, kovil, best_time_to_contact,
-            status, access_level,
+            status, access_level, rejection_reason: status === 'Rejected' ? rejection_reason : null,
         }, { transaction: t });
 
         // Delete old business profiles
@@ -649,7 +657,7 @@ const updateBusinessProfile = async (req, res) => {
 
         // Get the index from the request to find the correct files
         const profileIndex = req.body.profile_index || 0;
-        
+
         // Handle profile image update (keep old if none uploaded)
         // Look for files with the correct index pattern
         const business_profile_image =
@@ -659,11 +667,11 @@ const updateBusinessProfile = async (req, res) => {
 
         // Handle media gallery update (keep old if none uploaded)
         // Look for files with the correct index pattern
-        const gallery_files = 
-            req.files?.[`media_gallery_${profileIndex}`] || 
-            req.files?.["media_gallery"] || 
+        const gallery_files =
+            req.files?.[`media_gallery_${profileIndex}`] ||
+            req.files?.["media_gallery"] ||
             [];
-            
+
         const gallery_paths = gallery_files.map((file) => file.path.replace(/\\/g, "/"));
         const gallery_type =
             gallery_paths.length > 0
@@ -1031,77 +1039,77 @@ const addBusinessProfileForMember = async (req, res) => {
 
 // GET: All Business Profiles (optionally by member_id via query params)
 const getAllBusinessProfiles = async (req, res) => {
-  try {
-    const { member_id } = req.query;
-    const whereClause = member_id ? { member_id } : {};
+    try {
+        const { member_id } = req.query;
+        const whereClause = member_id ? { member_id } : {};
 
-    const profiles = await BusinessProfile.findAll({
-      where: whereClause,
-      include: [{ model: Member, as: 'Member', attributes: ['mid', 'first_name', 'email'] }],
-    });
+        const profiles = await BusinessProfile.findAll({
+            where: whereClause,
+            include: [{ model: Member, as: 'Member', attributes: ['mid', 'first_name', 'email'] }],
+        });
 
-    res.status(200).json({
-      success: true,
-      data: profiles,
-    });
-  } catch (err) {
-    console.error("Error fetching business profiles:", err);
-    res.status(500).json({
-      success: false,
-      msg: 'Failed to retrieve business profiles',
-      error: err.message,
-    });
-  }
+        res.status(200).json({
+            success: true,
+            data: profiles,
+        });
+    } catch (err) {
+        console.error("Error fetching business profiles:", err);
+        res.status(500).json({
+            success: false,
+            msg: 'Failed to retrieve business profiles',
+            error: err.message,
+        });
+    }
 };
 
 // GET: One Business Profile by ID
 const getBusinessProfileById = async (req, res) => {
-  try {
-    const { id } = req.params;
+    try {
+        const { id } = req.params;
 
-    const profile = await BusinessProfile.findByPk(id, {
-  include: [
-    {
-      model: Member,
-      as: 'Member',
-      attributes: [
-        'mid', 'first_name', 'email', 'dob', 'gender', 'contact_no', 'address',
-        'city', 'state', 'zip_code', 'profile_image', 'alternate_contact_no', 'best_time_to_contact', 'reward_points'
-      ],
-      include: [
-        {
-          model: MemberFamily,
-          as: 'MemberFamily',
-          attributes: [
-            'father_name', 'father_contact', 
-            'mother_name', 'mother_contact',
-            'spouse_name', 'spouse_contact'
-          ]
+        const profile = await BusinessProfile.findByPk(id, {
+            include: [
+                {
+                    model: Member,
+                    as: 'Member',
+                    attributes: [
+                        'mid', 'first_name', 'email', 'dob', 'gender', 'contact_no', 'address',
+                        'city', 'state', 'zip_code', 'profile_image', 'alternate_contact_no', 'best_time_to_contact', 'reward_points'
+                    ],
+                    include: [
+                        {
+                            model: MemberFamily,
+                            as: 'MemberFamily',
+                            attributes: [
+                                'father_name', 'father_contact',
+                                'mother_name', 'mother_contact',
+                                'spouse_name', 'spouse_contact'
+                            ]
+                        }
+                    ]
+                }
+            ]
+        });
+
+        if (!profile) {
+            return res.status(404).json({
+                success: false,
+                msg: 'Business profile not found',
+            });
         }
-      ]
-    }
-  ]
-});
 
-    if (!profile) {
-      return res.status(404).json({
-        success: false,
-        msg: 'Business profile not found',
-      });
+        res.status(200).json({
+            success: true,
+            data: profile,
+        });
+    } catch (err) {
+        console.error("Error fetching business profile:", err);
+        res.status(500).json({
+            success: false,
+            msg: 'Failed to fetch business profile',
+            error: err.message,
+        });
     }
-
-    res.status(200).json({
-      success: true,
-      data: profile,
-    });
-  } catch (err) {
-    console.error("Error fetching business profile:", err);
-    res.status(500).json({
-      success: false,
-      msg: 'Failed to fetch business profile',
-      error: err.message,
-    });
-  }
 };
 
 // ✅ Add Family Information for Existing Member

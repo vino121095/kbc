@@ -1,12 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { Search, MapPin, Star, Users, Eye, Phone, Mail, Facebook, Twitter, Linkedin, Instagram } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Search, MapPin, Star, Users, Eye, Phone, Mail, Facebook, Twitter, Linkedin, Instagram, MessageCircle } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
 
 // Import your header and footer components
 import Header from './Header';
 import Footer from './Footer';
 import MobileFooter from './MobileFooter';
 import baseurl from '../../components/Baseurl/baseurl';
+
+const WhatsAppIcon = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884" fill="#25D366" />
+  </svg>
+);
+
+const PhoneIcon = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" fill="#3B82F6" />
+  </svg>
+);
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -227,17 +239,17 @@ const HomePage = () => {
 
   // Calculate ratings for a specific business
   const getBusinessRatings = (businessId) => {
-    const businessRatings = ratings.filter(rating => 
+    const businessRatings = ratings.filter(rating =>
       rating.business_id === businessId && rating.status === 'approved'
     );
-    
+
     if (businessRatings.length === 0) {
       return { averageRating: 0, reviewCount: 0 };
     }
-    
+
     const totalRating = businessRatings.reduce((sum, rating) => sum + rating.rating, 0);
     const averageRating = totalRating / businessRatings.length;
-    
+
     return {
       averageRating: Math.round(averageRating * 10) / 10, // Round to 1 decimal place
       reviewCount: businessRatings.length
@@ -618,70 +630,97 @@ const HomePage = () => {
 
                   const title = business?.company_name || 'Business';
                   const subtitle = business?.business_type || (business?.Member?.first_name || business?.member?.first_name || '');
-                  
+
                   // Get real ratings data
                   const { averageRating, reviewCount } = getBusinessRatings(business.id);
                   const reviewsCount = reviewCount;
                   const ratingValue = averageRating;
                   return (
                     <div key={business.id} className="bg-white rounded-3xl shadow-md hover:shadow-lg transition duration-300 overflow-hidden">
-                      <div className="relative">
-                        {/* Green header section */}
-                        <div
-                          className="h-32 w-full bg-green-600 flex items-center justify-center bg-cover bg-no-repeat bg-center"
-                          style={{
-                            backgroundImage: business?.media_gallery
-                              ? `url(${baseurl}/${business.media_gallery})`
-                              : "url('/fallback.png')",
-                          }}
-                        ></div>
+                      <Link to={`/details/${business.id}`}>
+                        <div className="relative">
+                          {/* Green header section */}
+                          <div
+                            className="h-32 w-full bg-green-600 flex items-center justify-center bg-cover bg-no-repeat bg-center"
+                            style={{
+                              backgroundImage: business?.media_gallery
+                                ? `url(${baseurl}/${business.media_gallery})`
+                                : "url('/fallback.png')",
+                            }}
+                          ></div>
 
 
-                        {/* Avatar positioned on the left side between green and white sections */}
-                       <div className="absolute left-6 top-20 w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-md border-2 border-white z-10">
-                          {imageUrl ? (
-                            <img src={imageUrl} alt={title} className="w-12 h-12 object-cover rounded-full" />
-                          ) : (
-                            <div className="w-10 h-10 bg-green-100 rounded-full" />
-                          )}
-                        </div>
+                          {/* Avatar positioned on the left side between green and white sections */}
+                          <div className="absolute left-6 top-20 w-16 h-16 rounded-full bg-white flex items-center justify-center shadow-md border-2 border-white z-10">
+                            {imageUrl ? (
+                              <img src={imageUrl} alt={title} className="w-12 h-12 object-cover rounded-full" />
+                            ) : (
+                              <div className="w-10 h-10 bg-green-100 rounded-full" />
+                            )}
+                          </div>
 
-                        {/* Content section with left alignment */}
-                        <div className="px-3 sm:px-4 pt-10 sm:pt-12 pb-3 text-left">
-                          <h3 className="text-lg sm:text-xl font-extrabold text-gray-900 mb-2 text-left">{title}</h3>
-                          <p className="text-gray-600 text-sm sm:text-base mb-3 text-left">{subtitle}</p>
-                          <div className="flex items-center gap-2 sm:gap-3 mb-3 justify-start">
-                            <div className="flex items-center text-yellow-500">
-                              {[1, 2, 3, 4, 5].map((star) => (
-                                <Star
-                                  key={star}
-                                  className={`w-3 h-3 sm:w-4 sm:h-4 ${
-                                    star <= Math.floor(ratingValue)
+                          {/* Content section with left alignment */}
+                          <div className="px-3 sm:px-4 pt-10 sm:pt-12 pb-3 text-left">
+                            <h3 className="text-lg sm:text-xl font-extrabold text-gray-900 mb-2 text-left">{title}</h3>
+                            <p className="text-gray-600 text-sm sm:text-base mb-3 text-left">{subtitle}</p>
+                            <div className="flex items-center gap-2 sm:gap-3 mb-3 justify-start">
+                              <div className="flex items-center text-yellow-500">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                  <Star
+                                    key={star}
+                                    className={`w-3 h-3 sm:w-4 sm:h-4 ${star <= Math.floor(ratingValue)
                                       ? 'fill-yellow-400 text-yellow-400'
                                       : star === Math.ceil(ratingValue) && ratingValue % 1 !== 0
-                                      ? 'fill-yellow-200 text-yellow-400'
-                                      : 'text-gray-300'
-                                  }`}
-                                />
-                              ))}
+                                        ? 'fill-yellow-200 text-yellow-400'
+                                        : 'text-gray-300'
+                                      }`}
+                                  />
+                                ))}
+                              </div>
+                              <div className="flex items-baseline gap-1 sm:gap-2">
+                                <span className="text-gray-900 text-sm sm:text-lg font-semibold">
+                                  {ratingValue > 0 ? ratingValue.toFixed(1) : 'No rating'}
+                                </span>
+                                <span className="text-gray-500 text-xs sm:text-sm">
+                                  ({reviewsCount} {reviewsCount === 1 ? 'review' : 'reviews'})
+                                </span>
+                              </div>
                             </div>
-                            <div className="flex items-baseline gap-1 sm:gap-2">
-                              <span className="text-gray-900 text-sm sm:text-lg font-semibold">
-                                {ratingValue > 0 ? ratingValue.toFixed(1) : 'No rating'}
-                              </span>
-                              <span className="text-gray-500 text-xs sm:text-sm">
-                                ({reviewsCount} {reviewsCount === 1 ? 'review' : 'reviews'})
-                              </span>
+                            <div className="text-gray-700 mb-3 sm:mb-4 text-left text-xs sm:text-sm">Best time to contact : <span className="font-medium">{business?.best_contact_time || 'Morning'}</span></div>
+                            <div className="flex items-center gap-2">
+                              <button className="inline-flex items-center px-4 sm:px-7 py-1.5 sm:py-2 rounded-full bg-green-600 text-white text-xs sm:text-sm font-medium hover:bg-green-700 transition"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  navigate(`/details/${business.id}`);
+                                }}
+                              >
+                                View
+                              </button>
+
+                              {/* Phone and WhatsApp icons */}
+                              <div className="flex items-center gap-2 ml-auto">
+                                <a
+                                  href={`tel:${business.business_work_contract || business.phone || ''}`}
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="text-blue-600 hover:text-blue-800 transition-colors"
+                                  title="Call"
+                                >
+                                  <PhoneIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                                </a>
+                                <a
+                                  href='#'
+                                  className="text-green-600 hover:text-green-800 transition-colors"
+                                  onClick={(e) => e.stopPropagation()}
+                                  title="WhatsApp"
+                                >
+                                  <WhatsAppIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+                                </a>
+                              </div>
                             </div>
                           </div>
-                          <div className="text-gray-700 mb-3 sm:mb-4 text-left text-xs sm:text-sm">Best time to contact : <span className="font-medium">{business?.best_contact_time || 'Morning'}</span></div>
-                          <button className="inline-flex items-center px-4 sm:px-7 py-1.5 sm:py-2 rounded-full bg-green-600 text-white text-xs sm:text-sm font-medium hover:bg-green-700 transition"
-                            onClick={() => navigate(`/details/${business.id}`)}
-                          >
-                            View
-                          </button>
                         </div>
-                      </div>
+                      </Link>
                     </div>
                   );
                 })}

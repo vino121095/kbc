@@ -4,7 +4,7 @@ import Header from './Header';
 import Footer from './Footer';
 import MobileFooter from './MobileFooter';
 import baseurl from '../Baseurl/baseurl';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const BusinessCategories = () => {
   const [categories, setCategories] = useState([]);
@@ -316,6 +316,7 @@ const BusinessCategories = () => {
                 
                 return (
                   <div key={business.id} className="bg-white rounded-3xl shadow-md hover:shadow-lg transition duration-300 overflow-hidden">
+                    <Link to={`/details/${business.id}`}>
                     <div className="relative">
                       {/* Green header section */}
                       <div
@@ -372,6 +373,7 @@ const BusinessCategories = () => {
                         </button>
                       </div>
                     </div>
+                    </Link>
                   </div>
                 );
               })}
